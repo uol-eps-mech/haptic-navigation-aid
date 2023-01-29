@@ -1,6 +1,8 @@
 import pyfirmata
 import time
 import pyautogui
+import random
+import json
 
 pyautogui.FAILSAFE = False
 debounce : int = 200
@@ -77,40 +79,70 @@ def play_sequence():
         leds[led].write(0)
         time.sleep(0.5)
 
-def record_sequence():
-    counter = 0
-    buttonStates, switchState = get_input_states()
-    print(buttonStates, switchState)
-    while(switchState == 0):
-        buttonStates, switchState = get_input_states()
-        print("switch off", buttonStates, switchState)
-        if (any(x != 100 for x in sequence)):
-            time.sleep(0.7)
-            print_sequence()
-            play_sequence()
-        if switchState == 1: break
+def get_closest_anchor():
+    anchors = ["0x111", "0x222", "0x333", "0x444", "0x555"]
+    index = random.randint(0,4)
+    return anchors[index]
+
+def addOrUpdateAnchorMapping(anchor, sequence):
+    jsonFile = open("store.json", "r")
+    mappings = json.load(jsonFile)
+    jsonFile.close()
+
+    try:
+        mappings.update({anchor: sequence})
+    except:
+        mappings[anchor] = sequence
+
+    jsonFile = open("store.json", "w")
+    jsonFile.write(json.dumps(mappings))
+    jsonFile.close()
+
+def loop_sequence():
+    # print("switch off", buttonStates, switchOn)
+    if (any(x != 100 for x in sequence)):
+        time.sleep(0.7)
+        print_sequence()
+        play_sequence()
     
-    while(switchState == 1):
-        buttonStates, switchState = get_input_states()
-        print("switch on", buttonStates, switchState)
+
+def record_sequence(buttonStates, counter):
+    # print("switch on", buttonStates, switchOn)
+    if counter < 5:
         if (any(buttonStates)):
-            if counter < 5:
-                for id, state in enumerate(buttonStates):
-                    if state == 1:
-                        board.digital[ledPins[id]].write(1)
-                        sequence[counter] = (id)
-                        time.sleep(0.5)
-                        turn_off_leds()
-                        print("Button" , id+1, "pressed")
-                        print("Current Sequence:", sequence)
-                counter += 1
-            
-            else:
-                time.sleep(0.5)
-                flash_leds()    
+            print("Counter: ", counter)
+            for id, state in enumerate(buttonStates):
+                if state == 1:
+                    board.digital[ledPins[id]].write(1)
+                    sequence[counter] = (id)
+                    time.sleep(0.5)
+                    turn_off_leds()
+                    print("Button" , id+1, "pressed")
+                    print("Current Sequence:", sequence)
+            return counter + 1
+    else:
+        closest_anchor = get_closest_anchor()
+        addOrUpdateAnchorMapping(closest_anchor, sequence)
+        time.sleep(0.5)
+        flash_leds()
+        return 0
+
+    return counter
 
 while True:
     setup()
-    time.sleep(0.1)
+    time.sleep(0.4)
+    buttonStates, switchOn = get_input_states()
+    
+    print("here")
+    counter = 0
+    while(switchOn):
+        buttonStates, switchOn = get_input_states()
+        if(not switchOn): break
+        counter = record_sequence(buttonStates, counter)
 
-    record_sequence()
+    while(not switchOn):
+        _, switchOn = get_input_states()
+        if(switchOn): break
+
+        loop_sequence()
