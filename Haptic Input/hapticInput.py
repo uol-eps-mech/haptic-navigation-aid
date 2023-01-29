@@ -67,12 +67,12 @@ def flash_leds():
         time.sleep(0.5)
     
 
-def print_sequence():
+def print_sequence(sequence):
     print("------------ CURRENT SEQEUENCE ----------------")
     print(sequence)
     print("-----------------------------------------------")
 
-def play_sequence():
+def play_sequence(sequence):
     for led in sequence:
         leds[led].write(1)
         time.sleep(0.5)
@@ -100,10 +100,22 @@ def addOrUpdateAnchorMapping(anchor, sequence):
 
 def loop_sequence():
     # print("switch off", buttonStates, switchOn)
-    if (any(x != 100 for x in sequence)):
+    closest_anchor = get_closest_anchor()
+    jsonFile = open("store.json", "r")
+    mappings = json.load(jsonFile)
+    jsonFile.close()
+
+    sequence_to_play = [100, 100, 100, 100, 100]
+
+    try:
+        sequence_to_play = mappings[closest_anchor]
+    except:
+        pass
+
+    if (any(x != 100 for x in sequence_to_play)):
         time.sleep(0.7)
-        print_sequence()
-        play_sequence()
+        print_sequence(sequence_to_play)
+        play_sequence(sequence_to_play)
     
 
 def record_sequence(buttonStates, counter):
