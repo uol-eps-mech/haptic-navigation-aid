@@ -8,10 +8,10 @@ debounce : int = 200
 record_count  : int  = 0
 sequence = [100 for _ in range(5)]
 
-buttonPins : list[int] = [24]
+buttonPin = [24]
 buttons = []
 
-ledPins : list[int] = [23]
+ledPin = [23]
 leds = []
 
 switchPin = 10
@@ -22,13 +22,11 @@ def setup():
     # switch.mode = pyfirmata.INPUT
     # GPIO.setup(18,GPIO.OUT)
 
-    for buttonPin in buttonPins:
-        button = Button(buttonPin)
-        buttons.append(button)
+    button = Button(buttonPin)
+    buttons.append(button)
 
-    for ledPin in ledPins:
-        led = LED(ledPin)
-        leds.append(led)
+    led = LED(ledPin)
+    leds.append(led)
 
 def get_input_states():
     buttonStates = get_buttons_state()
@@ -36,11 +34,10 @@ def get_input_states():
     return buttonStates, switchState
 
 def get_buttons_state():
-    button1 = buttons[0].is_pressed
-    button2 = buttons[1].is_pressed
-    button3 = buttons[2].is_pressed
-    button4 = buttons[3].is_pressed
-    return [button1, button2, button3, button4]
+    buttonStates = []
+    for button in buttons:
+        buttonStates.append(button.is_pressed)
+    return buttonStates
 
 def turn_off_leds():
     for led in leds:
