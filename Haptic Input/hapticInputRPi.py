@@ -1,32 +1,27 @@
 import time
 import random
 import json
-from gpiozero import Button, LED
-import time
+import RPi.GPIO as GPIO
 
 debounce : int = 200
 record_count  : int  = 0
 sequence = [100 for _ in range(5)]
 
-buttonPin = [24]
-buttons = []
+buttonPins = [4]
 
-ledPin = [23]
-leds = []
+ledPins = [2]
 
-switchPin = 10
-# switch = board.digital[switchPin]
+#switchPin = 10
+#switch = board.digital[switchPin]
+
+GPIO.setmode(GPIO.BCM)
 
 def setup():
-    # switch = board.digital[switchPin]
-    # switch.mode = pyfirmata.INPUT
-    # GPIO.setup(18,GPIO.OUT)
+    #switch = board.digital[switchPin]
+    switch = True
 
-    button = Button(buttonPin)
-    buttons.append(button)
-
-    led = LED(ledPin)
-    leds.append(led)
+    GPIO.setup(buttonPins, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(ledPins, GPIO.OUT)
 
 def get_input_states():
     buttonStates = get_buttons_state()
@@ -34,18 +29,18 @@ def get_input_states():
     return buttonStates, switchState
 
 def get_buttons_state():
-    buttonStates = []
-    for button in buttons:
-        buttonStates.append(button.is_pressed)
-    return buttonStates
+    button_states = []
+    for buttonPin in buttonPins:
+        print(GPIO.input(buttonPin), buttonPin)
+        button_states.append(GPIO.input(buttonPin) == GPIO.HIGH)
+    print(button_states)
+    return button_states
 
 def turn_off_leds():
-    for led in leds:
-        led.value = 0
+    GPIO.output(ledPins, GPIO.LOW)
 
 def turn_on_leds():
-    for led in leds:
-        led.value = 1
+    GPIO.output(ledPins, GPIO.HIGH)
 
 def flash_leds():
     for _ in range(4):
@@ -64,9 +59,9 @@ def print_sequence(sequence):
 
 def play_sequence(sequence):
     for led in sequence:
-        leds[led].value = 1
+        GPIO.output(ledPins[led], GPIO.HIGH)
         time.sleep(0.5)
-        leds[led].value = 1
+        GPIO.output(ledPins[led], GPIO.LOW)
         time.sleep(0.5)
 
 def get_closest_anchor():
@@ -85,44 +80,42 @@ def addOrUpdateAnchorMapping(anchor, sequence):
         mappings[anchor] = sequence
 
     jsonFile = open("store.json", "w")
-    jsonFile.write(json.dumps(mappings, sort_keys=True))
+    jsonFile.write(json.dumps(mappings))
     jsonFile.close()
 
-def wait_for_location_request(buttonStates):
+def loop_sequence():
     # print("switch off", buttonStates, switchOn)
-    if (any(buttonStates)):
-        closest_anchor = get_closest_anchor()
-        jsonFile = open("store.json", "r")
-        mappings = json.load(jsonFile)
-        jsonFile.close()
+    closest_anchor = get_closest_anchor()
+    jsonFile = open("store.json", "r")
+    mappings = json.load(jsonFile)
+    jsonFile.close()
 
-        sequence_to_play = [100, 100, 100, 100, 100]
+    sequence_to_play = [100, 100, 100, 100, 100]
 
-        try:
-            sequence_to_play = mappings[closest_anchor]
-        except:
-            pass
+    try:
+        sequence_to_play = mappings[closest_anchor]
+    except:
+        pass
 
-        if (any(x != 100 for x in sequence_to_play)):
-            time.sleep(0.7)
-            print_sequence(sequence_to_play)
-            play_sequence(sequence_to_play)
+    if (any(x != 100 for x in sequence_to_play)):
+        time.sleep(0.7)
+        print_sequence(sequence_to_play)
+        play_sequence(sequence_to_play)
     
 
 def record_sequence(buttonStates, counter):
     # print("switch on", buttonStates, switchOn)
     if counter < 5:
         if (any(buttonStates)):
-            print("Counter: ", counter)
+            #print("Counter: ", counter)
             for id, state in enumerate(buttonStates):
                 if state == 1:
-                    led = LED(ledPins[id])
-                    led.value = 1
+                    GPIO.output(ledPins[id], GPIO.HIGH)
                     sequence[counter] = (id)
                     time.sleep(0.5)
                     turn_off_leds()
-                    print("Button" , id+1, "pressed")
-                    print("Current Sequence:", sequence)
+                    #print("Button" , id+1, "pressed")
+                    #print("Current Sequence:", sequence)
             return counter + 1
     else:
         closest_anchor = get_closest_anchor()
@@ -146,7 +139,7 @@ while True:
         counter = record_sequence(buttonStates, counter)
 
     while(not switchOn):
-        buttonStates, switchOn = get_input_states()
+        _, switchOn = get_input_states()
         if(switchOn): break
 
-        wait_for_location_request(buttonStates)
+        loop_sequence()
