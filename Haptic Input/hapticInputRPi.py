@@ -3,37 +3,32 @@ import random
 import json
 import RPi.GPIO as GPIO
 
-debounce : int = 200
-record_count  : int  = 0
+debounce = 0.2 #seconds
+record_count = 0
 sequence = [100 for _ in range(5)]
 
-buttonPins = [4]
+buttonPins = [15,18,23,8]
 
-ledPins = [2]
+ledPins = [14,17,22,7]
 
-#switchPin = 10
-#switch = board.digital[switchPin]
+switchPin = 21
 
 GPIO.setmode(GPIO.BCM)
 
-def setup():
-    #switch = board.digital[switchPin]
-    switch = True
-
+def setup():    
+    GPIO.setup(switchPin, GPIO.IN)
     GPIO.setup(buttonPins, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(ledPins, GPIO.OUT)
 
 def get_input_states():
     buttonStates = get_buttons_state()
-    switchState = True
+    switchState = GPIO.input(switchPin) == GPIO.HIGH
     return buttonStates, switchState
 
 def get_buttons_state():
     button_states = []
     for buttonPin in buttonPins:
-        print(GPIO.input(buttonPin), buttonPin)
         button_states.append(GPIO.input(buttonPin) == GPIO.HIGH)
-    print(button_states)
     return button_states
 
 def turn_off_leds():
@@ -50,7 +45,6 @@ def flash_leds():
         time.sleep(0.2)
         turn_off_leds()
         time.sleep(0.5)
-    
 
 def print_sequence(sequence):
     print("------------ CURRENT SEQEUENCE ----------------")
@@ -84,7 +78,7 @@ def addOrUpdateAnchorMapping(anchor, sequence):
     jsonFile.close()
 
 def loop_sequence():
-    # print("switch off", buttonStates, switchOn)
+    print("switch off", buttonStates, switchOn)
     closest_anchor = get_closest_anchor()
     jsonFile = open("store.json", "r")
     mappings = json.load(jsonFile)
@@ -104,7 +98,7 @@ def loop_sequence():
     
 
 def record_sequence(buttonStates, counter):
-    # print("switch on", buttonStates, switchOn)
+    print("switch on", buttonStates, switchOn)
     if counter < 5:
         if (any(buttonStates)):
             #print("Counter: ", counter)
@@ -112,7 +106,7 @@ def record_sequence(buttonStates, counter):
                 if state == 1:
                     GPIO.output(ledPins[id], GPIO.HIGH)
                     sequence[counter] = (id)
-                    time.sleep(0.5)
+                    time.sleep(debounce)
                     turn_off_leds()
                     #print("Button" , id+1, "pressed")
                     #print("Current Sequence:", sequence)
@@ -126,9 +120,10 @@ def record_sequence(buttonStates, counter):
 
     return counter
 
+setup()
+turn_off_leds()
 while True:
-    setup()
-    time.sleep(0.4)
+    time.sleep(0.8)
     buttonStates, switchOn = get_input_states()
     
     print("here")
