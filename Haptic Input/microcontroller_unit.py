@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod, abstractproperty
 import pyfirmata
 import time
-import pyautogui
 import random
 import RPi.GPIO as GPIO
 

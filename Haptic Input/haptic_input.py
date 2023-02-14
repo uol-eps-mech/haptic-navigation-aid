@@ -16,7 +16,7 @@ MCU = RPi(None, led_pins, button_pins, switch_pin)
 
 def get_input_states():
     button_states = MCU.get_button_states()
-    switch_state = MCU.get_switch_state()
+    switch_state = MCU.get_switch_state(switch_pin)
     return button_states, switch_state
 
 def flash_leds():
@@ -59,24 +59,25 @@ def addOrUpdateAnchorMapping(anchor, sequence):
     jsonFile.write(json.dumps(mappings))
     jsonFile.close()
 
-def loop_sequence():
-    print("switch off", button_states, switch_on)
-    closest_anchor = get_closest_anchor()
-    jsonFile = open("store.json", "r")
-    mappings = json.load(jsonFile)
-    jsonFile.close()
+def loop_sequence(button_states):
+    if (any(button_states)):
+        print("switch off", button_states, switch_on)
+        closest_anchor = get_closest_anchor()
+        jsonFile = open("store.json", "r")
+        mappings = json.load(jsonFile)
+        jsonFile.close()
 
-    sequence_to_play = [None for _ in range(5)]
+        sequence_to_play = [None for _ in range(5)]
 
-    try:
-        sequence_to_play = mappings[closest_anchor]
-    except:
-        pass
+        try:
+            sequence_to_play = mappings[closest_anchor]
+        except:
+            pass
 
-    if (any(x != 100 for x in sequence_to_play)):
-        time.sleep(0.7)
-        print_sequence(sequence_to_play)
-        play_sequence(sequence_to_play)
+        if (any(x != 100 for x in sequence_to_play)):
+            time.sleep(0.7)
+            print_sequence(sequence_to_play)
+            play_sequence(sequence_to_play)
     
 
 def record_sequence(button_states, counter):
@@ -118,7 +119,7 @@ while True:
         counter = record_sequence(button_states, counter)
 
     while(not switch_on):
-        _, switch_on = get_input_states()
+        button_states, switch_on = get_input_states()
         if switch_on: break
 
-        loop_sequence()
+        loop_sequence(button_states)
