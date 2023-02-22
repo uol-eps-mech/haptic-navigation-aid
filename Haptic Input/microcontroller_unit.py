@@ -48,8 +48,14 @@ class Arduino(MCU):
     def __init__(self, com_port, led_pins, button_pins, switch_pin):
         super().__init__(com_port, led_pins, button_pins, switch_pin)
         
+        if com_port:
+            self.board = pyfirmata.Arduino(com_port)
+        else:
         self.board = pyfirmata.Arduino('COM7')
         
+        it = pyfirmata.util.Iterator(self.board)
+        it.start()
+
         self.leds = {}
         for led_pin in self.led_pins:
             led = self.board.digital[led_pin]
