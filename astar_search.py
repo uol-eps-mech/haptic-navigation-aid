@@ -39,7 +39,7 @@ def return_path(current_node):
     return path[::-1]  # Return reversed path
 
 
-def astar(maze, start, end, allow_diagonal_movement=False):
+def astar(maze, start, end, allow_diagonal_movement=True):
     """
     Returns a list of tuples as a path from the given start to the given end in the given maze
     :param maze:
@@ -138,18 +138,21 @@ def astar(maze, start, end, allow_diagonal_movement=False):
 
 def example(print_maze=True):
 
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],]
+    maze = [[0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],]
+    
+    start = (0,0)
+    end = (9, 9)
 
-    path = astar(maze, (0, 0), (9, 9))
+    path = astar(maze, start, end)
 
     if print_maze:
         for step in path:
@@ -161,9 +164,9 @@ def example(print_maze=True):
                 if col == 1:
                     line.append("\u2588")
                 elif col == 0:
-                    line.append(" ")
-                elif col == 2:
                     line.append(".")
+                elif col == 2:
+                    line.append("#")
             print("".join(line))
 
     print(path)
