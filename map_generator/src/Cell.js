@@ -1,11 +1,22 @@
 import { useState } from "react";
-import './Cell.css';
+import "./Cell.css";
 
-function Cell({start = false, end = false, obstacle, setObstacle}) {
-
+function Cell({ start = false, end = false, free, setObstacle }) {
   return (
-    <div className={"cell"} onClick={setObstacle} style={{backgroundColor: start ? "lightblue" : end ? "LIGHTgreen" : obstacle ? "grey" : "white"}}>
-        {obstacle ? 0 : 1}
+    <div
+      className={"cell"}
+      onClick={setObstacle}
+      style={{
+        backgroundColor: start
+          ? "lightblue"
+          : end
+          ? "LIGHTgreen"
+          : free
+          ? "white"
+          : "grey",
+      }}
+    >
+      {free ? 0 : 1}
     </div>
   );
 }
