@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./Cell.css";
 
 function Cell({ start = false, end = false, free, setObstacle }) {
