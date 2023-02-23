@@ -31,7 +31,7 @@ function App() {
         return "[" + row.join(",") + "],";
       }) // At this point we have an array of strings
       .join("\n");
-    navigator.clipboard.writeText("[" + csv + "]")
+    navigator.clipboard.writeText("maze=[" + csv + "]" + "\nstart=" + start + "\ngoal=" + goal)
   }
 
   return (
