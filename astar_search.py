@@ -64,7 +64,7 @@ def astar(maze, start, end, allow_diagonal_movement=True):
 
     # Adding a stop condition
     outer_iterations = 0
-    max_iterations = (len(maze[0]) * len(maze) // 2)
+    max_iterations = 512  # (len(maze[0]) * len(maze) // 2)
 
     # what squares do we search
     adjacent_squares = ((0, -1), (0, 1), (-1, 0), (1, 0),)
@@ -107,6 +107,17 @@ def astar(maze, start, end, allow_diagonal_movement=True):
             if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
+            # Check diagonal movement is valid (i.e. they don't need to walk through a wall)
+            if abs(new_position[0]) == abs(new_position[1]):  # Diagonal move
+                left_node_x = node_position[0] - new_position[0]
+                left_node_y = node_position[1]
+                right_node_x = node_position[0]
+                right_node_y = node_position[1] - new_position[1]
+
+                # Check validity of nodes next to diagnonal
+                if maze[left_node_x][left_node_y] != 0 or maze[right_node_x][right_node_y] != 0:
+                    continue
+
             # Create new node
             new_node = Node(current_node, node_position)
 
@@ -120,9 +131,14 @@ def astar(maze, start, end, allow_diagonal_movement=True):
                 continue
 
             # Create the f, g, and h values
-            child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) **
-                       2) + ((child.position[1] - end_node.position[1]) ** 2)
+            if abs(child.position[0]) == abs(child.position[1]):  # Diagonal move
+                child.g = current_node.g + 1.414
+            else:
+                child.g = current_node.g + 1
+            # child.g = current_node.g + 1 #TODO change to if statement for diagonals to be sqrt(2)
+
+            child.h = (((child.position[0] - end_node.position[0]) **
+                       2) + ((child.position[1] - end_node.position[1]) ** 2)) ** 0.5  # TODO the issue is there's a much greater bias towards h than g
             child.f = child.g + child.h
 
             # Child is already in the open list
@@ -138,18 +154,18 @@ def astar(maze, start, end, allow_diagonal_movement=True):
 
 def example(print_maze=True):
 
-    maze = [[0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],]
-    
-    start = (0,0)
+    maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [1, 1, 1, 1, 1, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],]
+
+    start = (0, 0)
     end = (9, 9)
 
     path = astar(maze, start, end)
@@ -162,11 +178,11 @@ def example(print_maze=True):
             line = []
             for col in row:
                 if col == 1:
-                    line.append("\u2588")
+                    line.append("\u2588"*3)
                 elif col == 0:
-                    line.append(".")
+                    line.append(" . ")
                 elif col == 2:
-                    line.append("#")
+                    line.append(" # ")
             print("".join(line))
 
     print(path)
