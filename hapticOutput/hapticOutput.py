@@ -15,6 +15,7 @@ east = adafruit_drv2605.DRV2605(i2cExpander[2])
 west = adafruit_drv2605.DRV2605(i2cExpander[3])
 
 def clear_sequences():
+    # Set sequence on motor to empty list
     south.sequence = []
     north.sequence = []
     east.sequence = []
