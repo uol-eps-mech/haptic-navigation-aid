@@ -1,3 +1,5 @@
+import numpy as np
+from random import randint
 from warnings import warn
 import heapq
 
@@ -37,6 +39,59 @@ def return_path(current_node):
         path.append(current.position)
         current = current.parent
     return path[::-1]  # Return reversed path
+
+
+def get_currentlocation(maze, node_density):
+    # TODO: will need to pull from Rego's data
+    rand_start = (randint(0, (len(maze) - 1))*2, randint(0, (len(maze) - 1))*2)
+    start = (rand_start[0]//node_density, rand_start[1]//node_density)
+    return start
+
+
+def get_goal(maze, node_density):
+    # TODO: will need to pull from Kaif's data
+    incomplete = True
+    while incomplete:
+        rand_end = (randint(0, (len(maze) - 1))*2,
+                    randint(0, (len(maze) - 1))*2)
+        end = (rand_end[0]//node_density, rand_end[1]//node_density)
+
+        if maze[end[0]][end[1]] != 0:
+            continue
+        else:
+            incomplete = False
+
+    return end
+
+
+def get_heading():
+    heading = randint(0, 360)
+    return heading
+
+
+def get_heading_needed(route):
+    required_movement_direction_x = route[1][0] - route[0][0]
+    required_movement_direction_y = route[1][1] - route[0][1]
+    required_movement_direction = (
+        required_movement_direction_x, required_movement_direction_y)
+
+    if required_movement_direction == (0, 1):
+        target_heading = 0
+    elif required_movement_direction == (1, 1):
+        target_heading = 45
+    elif required_movement_direction == (1, 0):
+        target_heading = 90
+    elif required_movement_direction == (1, -1):
+        target_heading = 135
+    elif required_movement_direction == (0, -1):
+        target_heading = 180
+    elif required_movement_direction == (-1, -1):
+        target_heading = 225
+    elif required_movement_direction == (-1, 0):
+        target_heading = 270
+    elif required_movement_direction == (-1, 1):
+        target_heading = 315
+    return target_heading
 
 
 def astar(maze, start, end, allow_diagonal_movement=True):
@@ -154,17 +209,22 @@ def astar(maze, start, end, allow_diagonal_movement=True):
 
 def example(print_maze=True):
 
-    maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-            [1, 1, 1, 1, 1, 1, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+    maze = [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
             [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-            [0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
             [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
             [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],]
 
+    node_density = 2
+    # start = get_currentlocation(maze)
+    # end = get_goal(maze)
+    # start = get_currentlocation(maze, node_density)
+    # end = get_goal(maze, node_density)
     start = (0, 0)
     end = (9, 9)
 
@@ -173,6 +233,9 @@ def example(print_maze=True):
     if print_maze:
         for step in path:
             maze[step[0]][step[1]] = 2
+
+        maze[start[0]][start[1]] = 3
+        maze[end[0]][end[1]] = 4
 
         for row in maze:
             line = []
@@ -183,9 +246,28 @@ def example(print_maze=True):
                     line.append(" . ")
                 elif col == 2:
                     line.append(" # ")
+                elif col == 3:
+                    line.append(" O ")
+                elif col == 4:
+                    line.append(" X ")
             print("".join(line))
 
-    print(path)
+    return (path)
 
 
-example()
+route = example()
+print(route)
+# heading_change = get_heading_needed(route) - get_heading()
+
+
+current_heading = get_heading()
+# current_heading = round(8*get_heading()/360, 0)
+print("current heading is: {} ".format(current_heading))
+
+
+required_heading = get_heading_needed(route)
+print("desired heading is: {} ".format(required_heading))
+
+heading_change = round(required_heading - current_heading)
+# heading_change = round(8*(required_heading - current_heading)/360, 0)
+print("heading change is: {} ".format(heading_change))
