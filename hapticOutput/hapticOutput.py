@@ -1,9 +1,10 @@
-import board, time
+import board
 import adafruit_tca9548a
 import adafruit_drv2605
+from time import sleep
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
-time.sleep(1)
+sleep(1)
 
 # Create the TCA9548A object and give it the I2C bus
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
@@ -13,6 +14,16 @@ north = adafruit_drv2605.DRV2605(i2cExpander[0])
 south = adafruit_drv2605.DRV2605(i2cExpander[1])
 east = adafruit_drv2605.DRV2605(i2cExpander[2])
 west = adafruit_drv2605.DRV2605(i2cExpander[3])
+
+# Map Buttons to Effects
+button_to_effect_map = {
+    "0" : 1, # strong click
+    "1" : 7, # soft bump
+    "2" : 24, # sharp tick 
+    "3" : 56, # pulsing sharp
+    "4" : 87, # long ramp up
+    "5" : 12, # triple click
+}
 
 def clear_sequences():
     # Set sequence on motor to empty list
@@ -63,3 +74,17 @@ def play_effect(effect_id, delay=0, count=1):
         west.play()
         sleep(delay) # sleep for 'delay' no. of seconds
 
+def play_sequence(sequence):
+    # Clear sequence on all motors
+    clear_sequences()
+
+    for button in sequence:
+        south.sequence[0] = north.sequence[0] = west.sequence[0] = east.sequence[0] = adafruit_drv2605.Effect(button_to_effect_map[button])
+        south.play()
+        north.play()
+        east.play()
+        west.play()
+        sleep(1)
+
+# TODO: add set destination method
+# TODO: add initialisation script
