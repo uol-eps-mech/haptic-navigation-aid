@@ -16,10 +16,10 @@ west = adafruit_drv2605.DRV2605(i2cExpander[3])
 
 def clear_sequences():
     # Set sequence on motor to empty list
-    south.sequence = []
-    north.sequence = []
-    east.sequence = []
-    west.sequence = []
+    south.sequence[0] = adafruit_drv2605.Pause(0)
+    north.sequence[0] = adafruit_drv2605.Pause(0)
+    east.sequence[0] = adafruit_drv2605.Pause(0)
+    west.sequence[0] = adafruit_drv2605.Pause(0)
 
 def play_direction(cardinal_direction, intensity=2, delay=0, count=1):
     # Clear sequence on all motors
