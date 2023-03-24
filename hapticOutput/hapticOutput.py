@@ -47,5 +47,19 @@ def play_direction(cardinal_direction, intensity=2, delay=0, count=1):
         north.play()
         east.play()
         west.play()
-        time.sleep(delay) # sleep for 'delay' no. of seconds
-    
+        sleep(delay) # sleep for 'delay' no. of seconds
+
+def play_effect(effect_id, delay=0, count=1):
+    # Clear sequence on all motors
+    clear_sequences()
+
+    south.sequence[0] = north.sequence[0] = west.sequence[0] = east.sequence[0] = adafruit_drv2605.Effect(effect_id)
+
+    # Play sequence on motors for 'count' no. of times
+    for i in range(count):
+        south.play()
+        north.play()
+        east.play()
+        west.play()
+        sleep(delay) # sleep for 'delay' no. of seconds
+
