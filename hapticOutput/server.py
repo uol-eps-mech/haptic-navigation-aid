@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from hapticOutput import play_direction, play_effect, play_sequence
+from hapticOutput import play_direction, play_effect, play_sequence, map_button_to_effect
 import json
 import random
 
-acknowledgement_effect_id = 27
+acknowledgement_effect_id = 47
+error_effect_id = 27
 
 app = FastAPI()
 
@@ -62,6 +63,11 @@ def update_destination_location(location):
     jsonFile.write(json.dumps(data))
     jsonFile.close()
 
+def format_sequence(sequence):
+    string_sequence = sequence.split(",")
+    int_sequence = [int(x) for x in string_sequence]
+    return int_sequence
+
 @app.get("/")
 async def root():
     print("Hello World")
@@ -70,22 +76,28 @@ async def root():
 @app.get("/mapsequence/{sequence}")
 def map_sequence(sequence):
     user_location = get_user_location()
-    add_or_update_sequence_mapping(str(user_location), sequence)
-    return {"message": "Sequence '" + sequence + "' mapped to location: '"  + user_location + "'"}
+    add_or_update_sequence_mapping(str(user_location), format_sequence(sequence))
+    return {"message": "Sequence '" + sequence + "' mapped to location: '"  + str(user_location) + "'"}
 
 @app.get("/playacksequence")
 def play_ack_sequence():
-    play_effect(acknowledgement_effect_id, 0.2, 2)
+    play_effect(acknowledgement_effect_id, 0.5, 2)
     return {"message": "playing acknowledgement sequence"}
 
 @app.get("/playsequence/{sequence}")
-def play_sequence_1(sequence):
-    play_sequence(sequence.split(","))
+def play_entered_sequence(sequence):
+    play_sequence(format_sequence(sequence))
     return {"message": "playing sequence: " + sequence}
+
+@app.get("/playbutton/{button}")
+def play_button(button):
+    effect_id = map_button_to_effect(int(button))
+    play_effect(effect_id)
+    return {"message": "playing effect: '" + str(effect_id) + "' for button: '" + button + "'"}
 
 @app.get("/getlocation/{sequence}")
 def get_location(sequence):
-    location = get_location_from_sequence(sequence.split(","))
+    location = get_location_from_sequence(format_sequence(sequence))
     return {"message": location}
 
 @app.get("/updatedestination/{location}")
