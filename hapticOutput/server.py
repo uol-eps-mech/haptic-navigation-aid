@@ -1,10 +1,66 @@
 from fastapi import FastAPI
 from hapticOutput import play_direction, play_effect, play_sequence
+import json
+import random
 
 acknowledgement_effect_id = 27
 
 app = FastAPI()
 
+def get_user_location():
+    anchors = [(0,0), (11,5), (3,4), (12,9), (2,7)]
+    index = random.randint(0,4)
+    return anchors[index]
+
+def add_or_update_sequence_mapping(location, sequence):
+    jsonFile = open("store.json", "r")
+    data = json.load(jsonFile)
+    jsonFile.close()
+
+    try:
+        data["mappings"].update({location: sequence})
+    except:
+        data["mappings"][location] = sequence
+
+    jsonFile = open("store.json", "w")
+    jsonFile.write(json.dumps(data))
+    jsonFile.close()
+
+def get_location_from_sequence(sequence):
+    jsonFile = open("store.json", "r")
+    data = json.load(jsonFile)
+    mappings = data["mappings"]
+    jsonFile.close()
+
+    for elem in mappings:
+        if mappings[elem] == sequence:
+            return elem
+
+def get_sequence_for_location(location):
+    jsonFile = open("store.json", "r")
+    data = json.load(jsonFile)
+    mappings = data["mappings"]
+    jsonFile.close()
+
+    try:
+        location_found = mappings[location]
+        return location_found
+    except:
+        return False
+    
+def update_destination_location(location):
+    jsonFile = open("store.json", "r")
+    data = json.load(jsonFile)
+    jsonFile.close()
+
+    try:
+        data.update({"destination": location})
+    except:
+        data["destination"] = location
+
+    jsonFile = open("store.json", "w")
+    jsonFile.write(json.dumps(data))
+    jsonFile.close()
 
 @app.get("/")
 async def root():
@@ -13,17 +69,26 @@ async def root():
 
 @app.get("/mapsequence/{sequence}")
 def map_sequence(sequence):
-    play_direction("N")
-    print("Mapping Sequence:", sequence)
-    return {"sequence": sequence}
+    user_location = get_user_location()
+    add_or_update_sequence_mapping(str(user_location), sequence)
+    return {"message": "Sequence '" + sequence + "' mapped to location: '"  + user_location + "'"}
 
 @app.get("/playacksequence")
 def play_ack_sequence():
     play_effect(acknowledgement_effect_id, 0.2, 2)
-    return {"message": "buzzing motors"}
+    return {"message": "playing acknowledgement sequence"}
 
 @app.get("/playsequence/{sequence}")
 def play_sequence_1(sequence):
     play_sequence(sequence.split(","))
     return {"message": "playing sequence: " + sequence}
 
+@app.get("/getlocation/{sequence}")
+def get_location(sequence):
+    location = get_location_from_sequence(sequence.split(","))
+    return {"message": location}
+
+@app.get("/updatedestination/{location}")
+def update_destination(location):
+    update_destination_location(location)
+    return {"message": "destination updated to: " + location}
