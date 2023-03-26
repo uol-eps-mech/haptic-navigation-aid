@@ -17,12 +17,12 @@ west = adafruit_drv2605.DRV2605(i2cExpander[3])
 
 # Map Buttons to Effects
 button_to_effect_map = {
-    "0" : 1, # strong click
-    "1" : 7, # soft bump
-    "2" : 24, # sharp tick 
-    "3" : 56, # pulsing sharp
-    "4" : 87, # long ramp up
-    "5" : 12, # triple click
+    0 : 1, # strong click
+    1 : 10, # double click
+    2 : 75, # ramp down
+    3 : 51, # soft buzz
+    4 : 87, # long ramp up
+    5 : 12, # triple click
 }
 
 def clear_sequences():
@@ -79,12 +79,14 @@ def play_sequence(sequence):
     clear_sequences()
 
     for button in sequence:
-        south.sequence[0] = north.sequence[0] = west.sequence[0] = east.sequence[0] = adafruit_drv2605.Effect(button_to_effect_map[button])
+        south.sequence[0] = north.sequence[0] = west.sequence[0] = east.sequence[0] = adafruit_drv2605.Effect(map_button_to_effect(button))
         south.play()
         north.play()
         east.play()
         west.play()
         sleep(1)
 
-# TODO: add set destination method
+def map_button_to_effect(button):
+    return button_to_effect_map[button]
+
 # TODO: add initialisation script
