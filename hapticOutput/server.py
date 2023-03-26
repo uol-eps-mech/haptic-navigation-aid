@@ -36,6 +36,7 @@ def get_location_from_sequence(sequence):
     for elem in mappings:
         if mappings[elem] == sequence:
             return elem
+    return False
 
 def get_sequence_for_location(location):
     jsonFile = open("store.json", "r")
@@ -100,7 +101,12 @@ def get_location(sequence):
     location = get_location_from_sequence(format_sequence(sequence))
     return {"message": location}
 
-@app.get("/updatedestination/{location}")
-def update_destination(location):
-    update_destination_location(location)
-    return {"message": "destination updated to: " + location}
+@app.get("/setdestination/{sequence}")
+def update_destination(sequence):
+    destination = get_location_from_sequence(format_sequence(sequence))
+    if destination:
+        update_destination_location(destination)
+        return {"message": "destination updated to: " + destination}
+    else:
+        play_effect(error_effect_id, 0.5, 2)
+        return {"message": "Sequence received is not mapped to a location"}
