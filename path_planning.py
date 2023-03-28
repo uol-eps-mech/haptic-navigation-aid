@@ -53,7 +53,7 @@ def origin_location():
 
 
 def get_goal(map, node_density):
-    # TODO: will need to pull from Kaif's data
+    # TODO: will need to pull end location from Kaif's data and translate it into end node using same logic as start node
     incomplete = True
     while incomplete:
         rand_end = (int(randint(0, (len(map) - 1))*2),
@@ -68,7 +68,7 @@ def get_goal(map, node_density):
     return end
 
 
-def get_heading_required(path, node_density):
+def get_target_heading(path, node_density):
     if len(path) == 1:
         target_heading = 0
     else:
@@ -101,7 +101,7 @@ def get_location_and_heading(map, node_density):
 
     x_origin, y_origin = origin_location()
 
-    # Replace three variables with data from localisation
+    # Replace three variables with data from localisation #TODO
     x_location = (randint(1, (len(map))/node_density)) - x_origin
     y_location = (randint(1, (len(map[0]))/node_density)) - y_origin
     heading = 0
@@ -289,7 +289,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
     return None
 
 
-def turn_required(print_map=True, print_path=True):
+def calculate_next_direction(print_map=False, print_path=False):
     destination_reached = False
     map = load_map('sample_ten_by_ten')
 
@@ -320,13 +320,9 @@ def turn_required(print_map=True, print_path=True):
         print(path)
 
     # heading calculations
-    required_heading = get_heading_required(path, node_density)
+    required_heading = get_target_heading(path, node_density)
     heading_change = required_heading - h
 
     turn_direction = map_angle_to_direction(heading_change)
 
     return (turn_direction, destination_reached)
-
-
-output = turn_required()
-print(output)
