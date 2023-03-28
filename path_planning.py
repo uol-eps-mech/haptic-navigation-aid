@@ -2,6 +2,7 @@ import numpy as np
 from random import randint
 from warnings import warn
 import heapq
+from map import load_map
 
 
 class Node:
@@ -41,11 +42,11 @@ def return_path(current_node):
     return path[::-1]
 
 
-def origin_node():
-    # Find the minimum x and y coord values from anchors JSON
+def origin_location():
+    # Find the minimum x and y coord values from anchors JSON #TODO
     # hard code it for now
-    min_x = -2.5
-    min_y = -1.0
+    min_x = -3
+    min_y = -1.5
     x_origin = 0 - min_x
     y_origin = 0 - min_y
     return (x_origin, y_origin)
@@ -67,12 +68,12 @@ def get_goal(map, node_density):
     return end
 
 
-def get_heading_required(path):
+def get_heading_required(path, node_density):
     if len(path) == 1:
         target_heading = 0
     else:
-        required_movement_direction_x = path[1][0] - path[0][0]
-        required_movement_direction_y = path[1][1] - path[0][1]
+        required_movement_direction_x = node_density*(path[1][0] - path[0][0])
+        required_movement_direction_y = node_density*(path[1][1] - path[0][1])
         required_movement_direction = (
             required_movement_direction_x, required_movement_direction_y)
 
@@ -96,16 +97,21 @@ def get_heading_required(path):
 
 
 # TODO pull from localisation subsystem, at which point won't need map input
-def get_location_and_heading(map):
+def get_location_and_heading(map, node_density):
 
-    x_origin, y_origin = origin_node()
-    x_location = (randint(0, (len(map)-1)*10/2)/10) - x_origin
-    x_location = x_location + x_origin
-    y_location = (randint(0, (len(map[0])-1)*10/2)/10) - y_origin
-    y_location = y_location + y_origin
-    heading = randint(0, 360)
+    x_origin, y_origin = origin_location()
 
-    return (x_location, y_location, heading)
+    # Replace three variables with data from localisation
+    x_location = (randint(1, (len(map))/node_density)) - x_origin
+    y_location = (randint(1, (len(map[0]))/node_density)) - y_origin
+    heading = 0
+
+    # Translate from global coords to nodes
+    start_node_0 = len(map) - ((y_location+y_origin)*node_density)
+    start_node_1 = (x_origin + x_location)*node_density - 1
+    start_node = (int(round(start_node_0, 0)),
+                  int(round(start_node_1, 0)))
+    return (start_node, heading)
 
 
 def print_map_fun(map, path, start, end):
@@ -128,6 +134,8 @@ def print_map_fun(map, path, start, end):
                 line.append(" O ")
             elif row == 4:
                 line.append(" x ")
+            elif row == 5:
+                line.append(" L ")
         print("".join(line))
 
 
@@ -152,6 +160,19 @@ def map_angle_to_direction(heading_change):
         turn_direction = 'NW'
 
     return (turn_direction)
+
+
+def translate_path(map, path, node_density):
+
+    x_origin, y_origin = origin_location()
+    translated_path = []
+    for step in path:
+        translated_x = ((step[1] + 1)/node_density)-x_origin
+        translated_y = ((len(map)-step[0])/node_density)-y_origin
+        translated_step = (translated_x, translated_y)
+        translated_path.append(translated_step)
+
+    return (translated_path)
 
 
 def astar(map, start, end, allow_diagonal_movement=True):
@@ -179,7 +200,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
 
     # Adding a stop condition
     outer_iterations = 0
-    max_iterations = 512  # (len(map[0]) * len(map) // 2)
+    max_iterations = 20000  # (len(map[0]) * len(map) // 2)
 
     # what squares do we search
     adjacent_squares = ((0, -1), (0, 1), (-1, 0), (1, 0),)
@@ -247,7 +268,6 @@ def astar(map, start, end, allow_diagonal_movement=True):
                 continue
 
             # Create the g, h and f values
-            # TODO the issue coudld be there's a much greater bias towards h than g
             child.h = (((child.position[0] - end_node.position[0]) ** 2) + (
                 (child.position[1] - end_node.position[1]) ** 2)) ** 0.5
 
@@ -256,7 +276,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
             else:
                 child.g = current_node.g + 1
 
-            child.f = child.g + child.h
+            child.f = child.g + (child.h*10)
 
             # Child is already in the open list
             if len([open_node for open_node in open_list if child.position == open_node.position and child.g > open_node.g]) > 0:
@@ -269,45 +289,44 @@ def astar(map, start, end, allow_diagonal_movement=True):
     return None
 
 
-def turn_required(print_map=False, print_path=False):
+def turn_required(print_map=True, print_path=True):
     destination_reached = False
-    map = [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-           [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-           [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-           [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-           [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-           [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-           [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-           [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-           [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-           [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],]
+    map = load_map('sample_ten_by_ten')
 
     # Define node density
     distance_between_nodes = 0.5
     node_density = 1/distance_between_nodes
 
     # Get x,y,h from localisation subsystem
-    [x, y, h] = get_location_and_heading(map)  # TODO remove map input
+    # TODO remove map input
+    [start_node, h] = get_location_and_heading(
+        map, node_density)
 
-    # Define start and end coords
-    start = (int(round(x*node_density, 0)), int(round(y*node_density, 0)))
-    end = get_goal(map, node_density)
+    # TODO get endpoint from JSON data, this will need translating to end node from end location
+    end = (5, 4)
 
-    if start == end:
+    if start_node == end:
         destination_reached = True
 
-    path = astar(map, start, end)
+    path = astar(map, start_node, end)
 
     if print_map:
-        print_map_fun(map, path, start, end)
+        print_map_fun(map, path, start_node, end)
+
+    # Translate path back from nodes to location
+    path = translate_path(map, path, node_density)
 
     if print_path:
         print(path)
 
     # heading calculations
-    required_heading = get_heading_required(path)
+    required_heading = get_heading_required(path, node_density)
     heading_change = required_heading - h
 
     turn_direction = map_angle_to_direction(heading_change)
 
     return (turn_direction, destination_reached)
+
+
+output = turn_required()
+print(output)
