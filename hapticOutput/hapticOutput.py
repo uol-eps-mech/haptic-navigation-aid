@@ -32,12 +32,15 @@ def clear_sequences():
     east.sequence[0] = adafruit_drv2605.Pause(0)
     west.sequence[0] = adafruit_drv2605.Pause(0)
 
-def play_direction(cardinal_direction, intensity=2, delay=0, count=1):
+def play_direction(cardinal_direction, intensity=2, delay=0, count=1, effects=None):
     # Clear sequence on all motors
     clear_sequences()
 
     # Set effect id based on intensity level 3 = highest 1 = lowest
-    effectid = 47 if intensity == 3 else 49 if intensity == 2 else 51
+    if effects:
+        effectid = effects[2] if intensity == 3 else effects[1] if intensity == 2 else effects[0]
+    else:
+        effectid = 47 if intensity == 3 else 49 if intensity == 2 else 51
     
     # Add effectid to sequence for motor if it is in cardinal direction
     if "S" in cardinal_direction:
