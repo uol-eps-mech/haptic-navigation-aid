@@ -45,8 +45,8 @@ def return_path(current_node):
 def origin_location():
     # Find the minimum x and y coord values from anchors JSON #TODO
     # hard code it for now
-    min_x = -3
-    min_y = -1.5
+    min_x = 0
+    min_y = 0
     x_origin = 0 - min_x
     y_origin = 0 - min_y
     return (x_origin, y_origin)
@@ -276,7 +276,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
             else:
                 child.g = current_node.g + 1
 
-            child.f = child.g + (child.h*10)
+            child.f = child.g + (child.h)
 
             # Child is already in the open list
             if len([open_node for open_node in open_list if child.position == open_node.position and child.g > open_node.g]) > 0:
@@ -303,7 +303,7 @@ def calculate_next_direction(print_map=False, print_path=False):
         map, node_density)
 
     # TODO get endpoint from JSON data, this will need translating to end node from end location
-    end = (5, 4)
+    end = (4, 4)
 
     if start_node == end:
         destination_reached = True
