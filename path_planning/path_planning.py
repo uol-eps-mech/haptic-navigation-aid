@@ -2,7 +2,7 @@ import numpy as np
 from random import randint
 from warnings import warn
 import heapq
-from map import load_map
+from path_planning.map import load_map
 
 
 class Node:
