@@ -24,15 +24,15 @@ def get_user_heading():
 
 def setup_bno055():
     sensor.mode = adafruit_bno055.CONFIG_MODE
-    time.sleep(1)
+    time.sleep(0.2)
     sensor.offsets_accelerometer = (-29, 21, -28)
     sensor.offsets_gyroscope  = (0, -1, 2)
     sensor.offsets_magnetometer = (624, -82, 151)
     sensor.radius_accelerometer = 1000
     sensor.radius_magnetometer = 632
     sensor.mode = adafruit_bno055.NDOF_MODE
-    time.sleep(1)
-
+    time.sleep(0.2)
+    
 def check_bno055_calibrated():
     # Check if the sensor is calibrated. If not, calibrate it.
     while not sensor.calibrated:
@@ -53,27 +53,32 @@ def initializeDWM1001API():
     serialPortDwm1001.write(DWM1001_API_COMMANDS.RESET)
     # send ENTER two times in order to access api
     serialPortDwm1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
+    time.sleep(0.5)
     serialPortDwm1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
+    time.sleep(0.5)
     serialPortDwm1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
 
 def connectDWM1001():
     serialPortDwm1001.close()
     time.sleep(0.2)
     serialPortDwm1001.open()
-
-def get_user_position():
-    connectDWM1001()
+    time.sleep(0.5)
     if(serialPortDwm1001.isOpen()):
-        print("Port opened: "+ str(serialPortDwm1001.name))
-        initializeDWM1001API()
+        time.sleep(0.5)       
         serialPortDwm1001.write(DWM1001_API_COMMANDS.LEC)
         serialPortDwm1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
-        serialReadLine=serialPortDwm1001.read_until()
-        location_data = str(serialReadLine, 'utf-8').split(',')
+        time.sleep(0.5)       
+
+def get_user_position():
+    global serialReadLine
+    if(serialPortDwm1001.isOpen()):
+        location_data = []
+        while len(location_data) < 1 or location_data[0] != 'POS':
+            serialReadLine=serialPortDwm1001.read_until()
+            location_data = str(serialReadLine, 'utf-8').split(',')
         x_pos = float(location_data[3])
         y_pos = float(location_data[4])
         coordinates = [x_pos, y_pos]
-        print(coordinates)
         return coordinates
                           
     else:
@@ -86,3 +91,15 @@ def get_user_location():
     if user_position:
         return (user_position[0], user_position[1], heading) #x, y, h
     return False
+
+
+def test():
+    setup_bno055()
+    initializeDWM1001API()
+    connectDWM1001()
+
+    while True:
+        location = get_user_location()
+        print(location)
+    
+test()
