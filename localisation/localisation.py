@@ -108,3 +108,9 @@ def test():
     while True:
         location = localisation.get_user_location()
         print(location)
+
+def test_dwm():
+    localisation = Localisation(board.I2C())
+    while True:
+        location = localisation.get_user_position()
+        print(location)
