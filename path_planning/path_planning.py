@@ -245,7 +245,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
                 continue
 
             # Check diagonal movement is valid (i.e. they don't need to walk through a wall)
-            if abs(new_position[0]) == abs(new_position[1]):  # Diagonal move
+            if abs(new_position[0]) - abs(node_position[0]) != 0 and abs(new_position[1]) - abs(node_position[1]) != 0:  # Diagonal move
                 left_node_x = node_position[0] - new_position[0]
                 left_node_y = node_position[1]
                 right_node_x = node_position[0]
@@ -272,7 +272,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
             child.h = (((child.position[0] - end_node.position[0]) ** 2) + (
                 (child.position[1] - end_node.position[1]) ** 2)) ** 0.5
 
-            if abs(child.position[0]) == abs(child.position[1]):  # Diagonal move
+            if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:  # Diagonal move
                 child.g = current_node.g + 1.414
             else:
                 child.g = current_node.g + 1
