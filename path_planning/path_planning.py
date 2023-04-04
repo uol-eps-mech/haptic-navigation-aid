@@ -280,7 +280,7 @@ def astar(map, start, end, allow_diagonal_movement=True):
             child.f = child.g + (child.h)
 
             # Child is already in the open list
-            if len([open_node for open_node in open_list if child.position == open_node.position and child.g > open_node.g]) > 0:
+            if len([open_node for open_node in open_list if child.position == open_node.position and child.f >= open_node.f]) > 0:
                 continue
 
             # Add the child to the open list
