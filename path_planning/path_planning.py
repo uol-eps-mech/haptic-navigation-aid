@@ -288,30 +288,27 @@ def astar(map, start, end, allow_diagonal_movement=True):
     warn("Couldn't get a path to destination")
     return None
 
+def get_one_cell_radius(x,y):
+    radius = [(0,0), (0,1), (1,0), (1,1), (-1,-1), (-1,0), (0,-1),(1,-1),(-1,1)]
+    return [(x+elm[0], y+elm[1]) for elm in radius]
 
-def calculate_next_direction(print_map=False, print_path=False):
+
+
+def calculate_next_direction(start, heading, end, map_name, offset, print_map=False, print_path=False):
     destination_reached = False
-    map = load_map('sample_ten_by_ten')
+    map = load_map(map_name)
 
     # Define node density
     distance_between_nodes = 0.5
     node_density = 1/distance_between_nodes
 
-    # Get x,y,h from localisation subsystem
-    # TODO remove map input
-    [start_node, h] = get_location_and_heading(
-        map, node_density)
-
-    # TODO get endpoint from JSON data, this will need translating to end node from end location
-    end = (4, 4)
-
-    if start_node == end:
+    if end in get_one_cell_radius(start[0], start[1]):
         destination_reached = True
 
-    path = astar(map, start_node, end)
+    path = astar(map, start, end)
 
     if print_map:
-        print_map_fun(map, path, start_node, end)
+        print_map_fun(map, path, start, end)
 
     # Translate path back from nodes to location
     path = translate_path(map, path, node_density)
@@ -321,8 +318,13 @@ def calculate_next_direction(print_map=False, print_path=False):
 
     # heading calculations
     required_heading = get_target_heading(path, node_density)
-    heading_change = required_heading - h
+    # heading = (360 - (heading + offset)%360) + 180
+    heading = heading + offset
+    # heading = 0
+    heading_change = required_heading - heading
+    print(heading, required_heading, heading_change)
 
     turn_direction = map_angle_to_direction(heading_change)
+    print(turn_direction)
 
     return (turn_direction, destination_reached)

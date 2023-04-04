@@ -78,13 +78,20 @@ class Localisation:
             self.serialPortDwm1001.write(DWM1001_API_COMMANDS.LEC)
             self.serialPortDwm1001.write(DWM1001_API_COMMANDS.SINGLE_ENTER)
             time.sleep(0.5)       
+    
+    def reset_buffer(self):
+        self.serialPortDwm1001.reset_input_buffer()
+        self.serialPortDwm1001.reset_output_buffer()
+        time.sleep(0.1)
 
     def get_user_position(self):
         global serialReadLine
         if(self.serialPortDwm1001.isOpen()):
+            self.reset_buffer()
             location_data = []
             while len(location_data) < 1 or location_data[0] != 'POS':
                 serialReadLine=self.serialPortDwm1001.read_until()
+                # print(serialReadLine)
                 location_data = str(serialReadLine, 'utf-8').split(',')
             x_pos = float(location_data[3])
             y_pos = float(location_data[4])
