@@ -295,7 +295,7 @@ def get_one_cell_radius(x,y):
 
 
 
-def calculate_next_direction(start, heading, end, map_name, offset, print_map=False, print_path=False):
+def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
     map = load_map(map_name)
 
@@ -305,6 +305,7 @@ def calculate_next_direction(start, heading, end, map_name, offset, print_map=Fa
 
     if end in get_one_cell_radius(start[0], start[1]):
         destination_reached = True
+        return (None, destination_reached)
 
     path = astar(map, start, end)
 
@@ -319,10 +320,12 @@ def calculate_next_direction(start, heading, end, map_name, offset, print_map=Fa
 
     # heading calculations
     required_heading = get_target_heading(path, node_density)
-    # heading = (360 - (heading + offset)%360) + 180
+
     heading = heading + offset
-    # heading = 0
+    if heading >= 360:
+        heading -= 360
     heading_change = required_heading - heading
+
     print(heading, required_heading, heading_change)
 
     turn_direction = map_angle_to_direction(heading_change)
