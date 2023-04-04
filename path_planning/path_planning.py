@@ -78,21 +78,21 @@ def get_target_heading(path, node_density):
             required_movement_direction_x, required_movement_direction_y)
 
         if required_movement_direction == (0, 1):
-            target_heading = 0
+            target_heading = 90
         elif required_movement_direction == (1, 1):
             target_heading = 45
         elif required_movement_direction == (1, 0):
-            target_heading = 90
+            target_heading = 0
         elif required_movement_direction == (1, -1):
-            target_heading = 135
+            target_heading = 315
         elif required_movement_direction == (0, -1):
-            target_heading = 180
+            target_heading = 270
         elif required_movement_direction == (-1, -1):
             target_heading = 225
         elif required_movement_direction == (-1, 0):
-            target_heading = 270
+            target_heading = 180
         elif required_movement_direction == (-1, 1):
-            target_heading = 315
+            target_heading = 135
     return target_heading
 
 
@@ -141,23 +141,24 @@ def print_map_fun(map, path, start, end):
 
 def map_angle_to_direction(heading_change):
     heading_change = round(8*(heading_change)/360, 0)
+    print(heading_change)
 
     if heading_change == 0 or heading_change == 8 or heading_change == -8:
         turn_direction = 'N'
     elif heading_change == 1 or heading_change == -7:
-        turn_direction = 'NE'
+        turn_direction = 'NW'
     elif heading_change == 2 or heading_change == -6:
-        turn_direction = 'E'
+        turn_direction = 'W'
     elif heading_change == 3 or heading_change == -5:
-        turn_direction = 'SE'
+        turn_direction = 'SW'
     elif heading_change == 4 or heading_change == -4:
         turn_direction = 'S'
     elif heading_change == 5 or heading_change == -3:
-        turn_direction = 'SW'
+        turn_direction = 'SE'
     elif heading_change == 6 or heading_change == -2:
-        turn_direction = 'W'
+        turn_direction = 'E'
     elif heading_change == 7 or heading_change == -1:
-        turn_direction = 'NW'
+        turn_direction = 'NE'
 
     return (turn_direction)
 
