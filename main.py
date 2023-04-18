@@ -3,7 +3,6 @@ from haptic_output.haptic_output import HapticOutput
 from localisation.localisation import Localisation
 from path_planning.path_planning import calculate_next_direction 
 import json
-import random
 import board
 import adafruit_tca9548a
 
@@ -13,9 +12,9 @@ error_effect_id = 27
 # uses board.SCL and board.SDA
 i2c = board.I2C()  
 # Create the TCA9548A object and give it the I2C bus
-# i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
-# haptic_output = HapticOutput(i2cExpander)
-localisation = Localisation(i2c)
+i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
+haptic_output = HapticOutput(i2cExpander)
+localisation = Localisation(i2cExpander[6])
 
 app = FastAPI()
 
@@ -93,25 +92,33 @@ async def root():
 
 @app.get("/mapsequence/{sequence}")
 def map_sequence(sequence):
+    print("Map Sequence Request received")
     user_location = localisation.get_user_location()
     add_or_update_sequence_mapping(str(user_location), format_sequence(sequence))
     return {"message": "Sequence '" + sequence + "' mapped to location: '"  + str(user_location) + "'"}
 
 @app.get("/playacksequence")
 def play_ack_sequence():
-    # haptic_output.play_effect(acknowledgement_effect_id, 0.5, 2)
+    print("PLay ack Request received")
+    haptic_output.play_effect(acknowledgement_effect_id, 0.5, 2)
     return {"message": "playing acknowledgement sequence"}
 
 @app.get("/playsequence/{sequence}")
 def play_entered_sequence(sequence):
-    # haptic_output.play_sequence(format_sequence(sequence))
+    print("PLay sequence Request received")
+    haptic_output.play_sequence(format_sequence(sequence))
     return {"message": "playing sequence: " + sequence}
 
-@app.get("/playbutton/{button}")
-def play_button(button):
-    effect_id = HapticOutput.map_button_to_effect(int(button))
-    # haptic_output.play_effect(effect_id)
-    return {"message": "playing effect: '" + str(effect_id) + "' for button: '" + button + "'"}
+def play_location_sequence(location):
+    print("PLaying location sequence")
+    seqeunce = get_sequence_for_location(location)
+    play_entered_sequence(seqeunce)
+
+@app.get("/playmotor/{motor}")
+def play_button(motor):
+    print("Playing motor", motor)
+    haptic_output.play_motor(motor)
+    return {"message": "playing motor: '" + motor + "'"}
 
 @app.get("/getlocation/{sequence}")
 def get_location(sequence):
@@ -125,7 +132,7 @@ def update_destination(sequence):
         update_destination_location(destination)
         return {"message": "destination updated to: " + destination}
     else:
-        # haptic_output.play_effect(error_effect_id, 0.5, 2)
+        haptic_output.play_effect(error_effect_id, 0.5, 2)
         return {"message": "Sequence received is not mapped to a location"}
 
 @app.get("/update")
@@ -134,14 +141,13 @@ def update():
     if(not destination):
         return
     x,y,h = localisation.get_user_location()
-    print(x,y,h)
     next_direction, destination_reached = calculate_next_direction((13 - int(y*2), int(x*2)), h, destination, "Lab_1", 360-125, True, True)
 
     
     if(destination_reached):
-        # play_ack_sequence()
+        play_ack_sequence()
         print("Destination Reached")
         return
     else:
-        # haptic_output.play_direction(next_direction)
+        haptic_output.play_direction(next_direction)
         print("Next Direction",next_direction)
