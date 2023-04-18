@@ -78,21 +78,21 @@ def get_target_heading(path, node_density):
             required_movement_direction_x, required_movement_direction_y)
 
         if required_movement_direction == (0, 1):
-            target_heading = 0
+            target_heading = 90
         elif required_movement_direction == (1, 1):
             target_heading = 45
         elif required_movement_direction == (1, 0):
-            target_heading = 90
+            target_heading = 0
         elif required_movement_direction == (1, -1):
-            target_heading = 135
+            target_heading = 315
         elif required_movement_direction == (0, -1):
-            target_heading = 180
+            target_heading = 270
         elif required_movement_direction == (-1, -1):
             target_heading = 225
         elif required_movement_direction == (-1, 0):
-            target_heading = 270
+            target_heading = 180
         elif required_movement_direction == (-1, 1):
-            target_heading = 315
+            target_heading = 135
     return target_heading
 
 
@@ -141,23 +141,24 @@ def print_map_fun(map, path, start, end):
 
 def map_angle_to_direction(heading_change):
     heading_change = round(8*(heading_change)/360, 0)
+    print(heading_change)
 
     if heading_change == 0 or heading_change == 8 or heading_change == -8:
         turn_direction = 'N'
     elif heading_change == 1 or heading_change == -7:
-        turn_direction = 'NE'
+        turn_direction = 'NW'
     elif heading_change == 2 or heading_change == -6:
-        turn_direction = 'E'
+        turn_direction = 'W'
     elif heading_change == 3 or heading_change == -5:
-        turn_direction = 'SE'
+        turn_direction = 'SW'
     elif heading_change == 4 or heading_change == -4:
         turn_direction = 'S'
     elif heading_change == 5 or heading_change == -3:
-        turn_direction = 'SW'
+        turn_direction = 'SE'
     elif heading_change == 6 or heading_change == -2:
-        turn_direction = 'W'
+        turn_direction = 'E'
     elif heading_change == 7 or heading_change == -1:
-        turn_direction = 'NW'
+        turn_direction = 'NE'
 
     return (turn_direction)
 
@@ -244,7 +245,8 @@ def astar(map, start, end, allow_diagonal_movement=True):
                 continue
 
             # Check diagonal movement is valid (i.e. they don't need to walk through a wall)
-            if abs(new_position[0]) == abs(new_position[1]):  # Diagonal move
+            # Diagonal move
+            if abs(new_position[0]) - abs(node_position[0]) != 0 and abs(new_position[1]) - abs(node_position[1]) != 0:
                 left_node_x = node_position[0] - new_position[0]
                 left_node_y = node_position[1]
                 right_node_x = node_position[0]
@@ -271,15 +273,19 @@ def astar(map, start, end, allow_diagonal_movement=True):
             child.h = (((child.position[0] - end_node.position[0]) ** 2) + (
                 (child.position[1] - end_node.position[1]) ** 2)) ** 0.5
 
-            if abs(child.position[0]) == abs(child.position[1]):  # Diagonal move
+            if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:  # Diagonal move
                 child.g = current_node.g + 1.414
             else:
                 child.g = current_node.g + 1
 
-            child.f = child.g + (child.h)
+            for cell in get_one_cell_radius(child.position[0], child.position[1]):
+                if map[cell[0]][cell[1]] == 0:
+                    child.g += 0.5
+
+            child.f = child.g + child.h
 
             # Child is already in the open list
-            if len([open_node for open_node in open_list if child.position == open_node.position and child.g > open_node.g]) > 0:
+            if len([open_node for open_node in open_list if child.position == open_node.position and child.f >= open_node.f]) > 0:
                 continue
 
             # Add the child to the open list
@@ -288,22 +294,23 @@ def astar(map, start, end, allow_diagonal_movement=True):
     warn("Couldn't get a path to destination")
     return None
 
-def get_one_cell_radius(x,y):
-    radius = [(0,0), (0,1), (1,0), (1,1), (-1,-1), (-1,0), (0,-1),(1,-1),(-1,1)]
+
+def get_one_cell_radius(x, y):
+    radius = [(0, 0), (0, 1), (1, 0), (1, 1), (-1, -1),
+              (-1, 0), (0, -1), (1, -1), (-1, 1)]
     return [(x+elm[0], y+elm[1]) for elm in radius]
 
 
-
-def calculate_next_direction(start, heading, end, map_name, offset, print_map=False, print_path=False):
+def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
-    map = load_map(map_name)
+    map, distance_between_nodes = load_map(map_name)
 
     # Define node density
-    distance_between_nodes = 0.5
     node_density = 1/distance_between_nodes
 
     if end in get_one_cell_radius(start[0], start[1]):
         destination_reached = True
+        return (None, destination_reached)
 
     path = astar(map, start, end)
 
@@ -318,10 +325,12 @@ def calculate_next_direction(start, heading, end, map_name, offset, print_map=Fa
 
     # heading calculations
     required_heading = get_target_heading(path, node_density)
-    # heading = (360 - (heading + offset)%360) + 180
+
     heading = heading + offset
-    # heading = 0
+    if heading >= 360:
+        heading -= 360
     heading_change = required_heading - heading
+
     print(heading, required_heading, heading_change)
 
     turn_direction = map_angle_to_direction(heading_change)
