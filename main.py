@@ -157,6 +157,7 @@ def update():
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
+    print("location:", x, y, h)
     next_direction, destination_reached = calculate_next_direction(
         (13 - int(y*2), int(x*2)), destination, h, 360-125, "Lab_1", True, True)
 

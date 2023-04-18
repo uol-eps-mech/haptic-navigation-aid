@@ -303,7 +303,8 @@ def get_one_cell_radius(x, y):
 
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
-    map = load_map(map_name)
+    env_map = load_map(map_name)
+    print(env_map)
 
     # Define node density
     node_density = 2
@@ -312,13 +313,14 @@ def calculate_next_direction(start, end, heading, offset, map_name, print_map=Fa
         destination_reached = True
         return (None, destination_reached)
 
-    path = astar(map, start, end)
+    path = astar(env_map, start, end)
+    print(path)
 
     if print_map:
-        print_map_fun(map, path, start, end)
+        print_map_fun(env_map, path, start, end)
 
     # Translate path back from nodes to location
-    path = translate_path(map, path, node_density)
+    path = translate_path(env_map, path, node_density)
 
     if print_path:
         print(path)
