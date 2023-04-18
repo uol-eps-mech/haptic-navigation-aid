@@ -296,9 +296,15 @@ def astar(map, start, end, allow_diagonal_movement=True):
 
 
 def get_one_cell_radius(x, y):
+    neighbours = []
     radius = [(0, 0), (0, 1), (1, 0), (1, 1), (-1, -1),
               (-1, 0), (0, -1), (1, -1), (-1, 1)]
-    return [(x+elm[0], y+elm[1]) for elm in radius]
+    for elm in radius:
+        try:
+            neighbours.append((x+elm[0], y+elm[1]))
+        except:
+            pass
+    return neighbours
 
 
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
