@@ -245,7 +245,8 @@ def astar(map, start, end, allow_diagonal_movement=True):
                 continue
 
             # Check diagonal movement is valid (i.e. they don't need to walk through a wall)
-            if abs(new_position[0]) - abs(node_position[0]) != 0 and abs(new_position[1]) - abs(node_position[1]) != 0:  # Diagonal move
+            # Diagonal move
+            if abs(new_position[0]) - abs(node_position[0]) != 0 and abs(new_position[1]) - abs(node_position[1]) != 0:
                 left_node_x = node_position[0] - new_position[0]
                 left_node_y = node_position[1]
                 right_node_x = node_position[0]
@@ -293,18 +294,18 @@ def astar(map, start, end, allow_diagonal_movement=True):
     warn("Couldn't get a path to destination")
     return None
 
-def get_one_cell_radius(x,y):
-    radius = [(0,0), (0,1), (1,0), (1,1), (-1,-1), (-1,0), (0,-1),(1,-1),(-1,1)]
-    return [(x+elm[0], y+elm[1]) for elm in radius]
 
+def get_one_cell_radius(x, y):
+    radius = [(0, 0), (0, 1), (1, 0), (1, 1), (-1, -1),
+              (-1, 0), (0, -1), (1, -1), (-1, 1)]
+    return [(x+elm[0], y+elm[1]) for elm in radius]
 
 
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
-    map = load_map(map_name)
+    map, distance_between_nodes = load_map(map_name)
 
     # Define node density
-    distance_between_nodes = 0.5
     node_density = 1/distance_between_nodes
 
     if end in get_one_cell_radius(start[0], start[1]):
