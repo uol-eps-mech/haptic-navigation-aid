@@ -60,14 +60,15 @@ def get_sequence_for_location(location):
 
 
 def update_destination_location(location):
+    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     jsonFile.close()
 
     try:
-        data.update({"destination": location})
+        data.update({"destination": (x, y)})
     except:
-        data["destination"] = location
+        data["destination"] = (x, y)
 
     jsonFile = open("store.json", "w")
     jsonFile.write(json.dumps(data))
