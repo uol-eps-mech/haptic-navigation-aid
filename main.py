@@ -154,6 +154,7 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
+    print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()

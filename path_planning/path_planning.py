@@ -305,6 +305,7 @@ def calculate_next_direction(start, end, heading, offset, map_name, print_map=Fa
     destination_reached = False
     env_map = load_map(map_name)
     print(env_map)
+    print(start, end, heading)
 
     # Define node density
     node_density = 2
