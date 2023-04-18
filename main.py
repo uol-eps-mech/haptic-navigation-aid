@@ -154,6 +154,7 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
+    destination = (13 - int(destination[1]*2), int(destination[0]*2))
     print(destination)
     if (not destination):
         return
