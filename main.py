@@ -20,14 +20,15 @@ app = FastAPI()
 
 
 def add_or_update_sequence_mapping(location, sequence):
+    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     jsonFile.close()
 
     try:
-        data["mappings"].update({location: sequence})
+        data["mappings"].update({(x, y): sequence})
     except:
-        data["mappings"][location] = sequence
+        data["mappings"][(x, y)] = sequence
 
     jsonFile = open("store.json", "w")
     jsonFile.write(json.dumps(data))
@@ -47,13 +48,14 @@ def get_location_from_sequence(sequence):
 
 
 def get_sequence_for_location(location):
+    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     mappings = data["mappings"]
     jsonFile.close()
 
     try:
-        location_found = mappings[location]
+        location_found = mappings[(x, y)]
         return location_found
     except:
         return False
