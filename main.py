@@ -20,15 +20,14 @@ app = FastAPI()
 
 
 def add_or_update_sequence_mapping(location, sequence):
-    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     jsonFile.close()
 
     try:
-        data["mappings"].update({(x, y): sequence})
+        data["mappings"].update({location: sequence})
     except:
-        data["mappings"][(x, y)] = sequence
+        data["mappings"][location] = sequence
 
     jsonFile = open("store.json", "w")
     jsonFile.write(json.dumps(data))
@@ -48,29 +47,27 @@ def get_location_from_sequence(sequence):
 
 
 def get_sequence_for_location(location):
-    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     mappings = data["mappings"]
     jsonFile.close()
 
     try:
-        location_found = mappings[(x, y)]
+        location_found = mappings[location]
         return location_found
     except:
         return False
 
 
 def update_destination_location(location):
-    x, y, h = location
     jsonFile = open("store.json", "r")
     data = json.load(jsonFile)
     jsonFile.close()
 
     try:
-        data.update({"destination": (x, y)})
+        data.update({"destination": location})
     except:
-        data["destination"] = (x, y)
+        data["destination"] = location
 
     jsonFile = open("store.json", "w")
     jsonFile.write(json.dumps(data))
@@ -104,10 +101,10 @@ async def root():
 @app.get("/mapsequence/{sequence}")
 def map_sequence(sequence):
     print("Map Sequence Request received")
-    user_location = localisation.get_user_location()
+    x, y, h = localisation.get_user_location()
     add_or_update_sequence_mapping(
-        str(user_location), format_sequence(sequence))
-    return {"message": "Sequence '" + sequence + "' mapped to location: '" + str(user_location) + "'"}
+        str((x, y)), format_sequence(sequence))
+    return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
 
 
 @app.get("/playacksequence")
@@ -160,7 +157,7 @@ def update():
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
-    print("location:", x, y, h)
+    print("location", x, y, h)
     next_direction, destination_reached = calculate_next_direction(
         (13 - int(y*2), int(x*2)), destination, h, 360-125, "Lab_1", True, True)
 
