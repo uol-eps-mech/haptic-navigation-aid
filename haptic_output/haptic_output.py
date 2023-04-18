@@ -18,6 +18,7 @@ class HapticOutput:
         self.south = adafruit_drv2605.DRV2605(i2cBus[1])
         self.east = adafruit_drv2605.DRV2605(i2cBus[2])
         self.west = adafruit_drv2605.DRV2605(i2cBus[3])
+        self.motors = [self.north, self.south, self.east, self.west]
 
 
     def clear_sequences(self):
@@ -71,6 +72,10 @@ class HapticOutput:
             self.east.play()
             self.west.play()
             sleep(delay) # sleep for 'delay' no. of seconds
+
+    def play_motor(self, motor_id):
+        self.motors[motor_id].sequence[0] = 1
+        self.motors[motor_id].play()
 
     def play_sequence(self, sequence):
         # Clear sequence on all motors

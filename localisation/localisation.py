@@ -2,7 +2,6 @@
 
 import adafruit_bno055
 import board
-import time
 import time, serial, os
 from dwm1001_systemDefinitions import SYS_DEFS
 from dwm1001_apiCommands  import DWM1001_API_COMMANDS
@@ -121,3 +120,5 @@ def test_dwm():
     while True:
         location = localisation.get_user_position()
         print(location)
+
+# test()
