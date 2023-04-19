@@ -310,18 +310,32 @@ def get_one_cell_radius(x, y):
     return neighbours
 
 
+def find_closest_node(node, env_map):
+    for close_node in get_one_cell_radius(node[0], node[1]):
+        if env_map[close_node[0]][close_node[1]] == 0:
+            new_node = close_node
+            continue
+    return new_node
+
+
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
-    env_map, distance_between_nodes = load_map(map_name)
     # print(env_map)
     # print(start, end, heading)
 
     # Define node density
+    env_map, distance_between_nodes = load_map(map_name)
     node_density = 1/distance_between_nodes
 
     if end in get_one_cell_radius(start[0], start[1]):
         destination_reached = True
         return (None, destination_reached)
+
+    if env_map[start[0]][start[1]] != 0:
+        start = find_closest_node(start, env_map)
+
+    if env_map[end[0]][end[1]] != 0:
+        end = find_closest_node(end, env_map)
 
     path = astar(env_map, start, end)
     # print(path)
@@ -349,3 +363,8 @@ def calculate_next_direction(start, end, heading, offset, map_name, print_map=Fa
     print(turn_direction)
 
     return (turn_direction, destination_reached)
+
+
+# output = calculate_next_direction(
+#     start=(4, 13), heading=0, end=(42, 16), map_name='foyer', offset=0, print_map=True, print_path=True)
+# print(output)
