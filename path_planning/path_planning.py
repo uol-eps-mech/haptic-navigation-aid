@@ -42,32 +42,6 @@ def return_path(current_node):
     return path[::-1]
 
 
-def origin_location():
-    # Find the minimum x and y coord values from anchors JSON #TODO
-    # hard code it for now
-    min_x = 0
-    min_y = 0
-    x_origin = 0 - min_x
-    y_origin = 0 - min_y
-    return (x_origin, y_origin)
-
-
-def get_goal(map, node_density):
-    # TODO: will need to pull end location from Kaif's data and translate it into end node using same logic as start node
-    incomplete = True
-    while incomplete:
-        rand_end = (int(randint(0, (len(map) - 1))*2),
-                    int(randint(0, (len(map) - 1))*2))
-        end = (int(rand_end[0]//node_density), int(rand_end[1]//node_density))
-
-        if map[end[0]][end[1]] != 0:
-            continue
-        else:
-            incomplete = False
-
-    return end
-
-
 def get_target_heading(path, node_density):
     if len(path) == 1:
         target_heading = 0
@@ -94,24 +68,6 @@ def get_target_heading(path, node_density):
         elif required_movement_direction == (-1, 1):
             target_heading = 135
     return target_heading
-
-
-# TODO pull from localisation subsystem, at which point won't need map input
-def get_location_and_heading(map, node_density):
-
-    x_origin, y_origin = origin_location()
-
-    # Replace three variables with data from localisation #TODO
-    x_location = (randint(1, (len(map))/node_density)) - x_origin
-    y_location = (randint(1, (len(map[0]))/node_density)) - y_origin
-    heading = 0
-
-    # Translate from global coords to nodes
-    start_node_0 = len(map) - ((y_location+y_origin)*node_density)
-    start_node_1 = (x_origin + x_location)*node_density - 1
-    start_node = (int(round(start_node_0, 0)),
-                  int(round(start_node_1, 0)))
-    return (start_node, heading)
 
 
 def print_map_fun(map, path, start, end):
@@ -165,7 +121,7 @@ def map_angle_to_direction(heading_change):
 
 def translate_path(map, path, node_density):
 
-    x_origin, y_origin = origin_location()
+    x_origin, y_origin = (0,0)
     translated_path = []
     for step in path:
         translated_x = ((step[1] + 1)/node_density)-x_origin
