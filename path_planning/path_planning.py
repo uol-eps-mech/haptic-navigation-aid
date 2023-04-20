@@ -120,17 +120,17 @@ def map_angle_to_direction(heading_change):
 
 
 def translate_path(map, path, node_density):
-
-    x_origin, y_origin = (0,0)
     translated_path = []
-    for step in path:
-        translated_x = ((step[1] + 1)/node_density)-x_origin
-        translated_y = ((len(map)-step[0])/node_density)-y_origin
-        translated_step = (translated_x, translated_y)
-        translated_path.append(translated_step)
-
+    for step in path:       
+        translated_path.append(translate_node(map, step, node_density))
     return (translated_path)
 
+def translate_node(map, node, node_density):
+    x_origin, y_origin = (0,0)
+    translated_x = ((node[1] + 1)/node_density)-x_origin
+    translated_y = ((len(map)-node[0])/node_density)-y_origin
+    translated_node = (translated_x, translated_y)
+    return translated_node
 
 def astar(map, start, end, allow_diagonal_movement=True):
     """
