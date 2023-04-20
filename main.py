@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from haptic_output.haptic_output import HapticOutput
 from localisation.localisation import Localisation
-from path_planning.path_planning import calculate_next_direction
+from path_planning.path_planning import PathPlanner
 import json
 import board
 import adafruit_tca9548a
@@ -15,6 +15,7 @@ i2c = board.I2C()
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 haptic_output = HapticOutput(i2cExpander)
 localisation = Localisation(i2cExpander[6])
+path_planner = PathPlanner("Lab_1")
 
 app = FastAPI()
 
@@ -160,8 +161,8 @@ def update():
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
-    next_direction, destination_reached = calculate_next_direction(
-        (13 - int(y*2), int(x*2)), destination, h, 360-125, "Lab_1", True, True)
+    next_direction, destination_reached = path_planner.calculate_next_direction(
+        (13 - int(y*2), int(x*2)), destination, h, 360-125, True, True)
 
     if (destination_reached):
         play_ack_sequence()
