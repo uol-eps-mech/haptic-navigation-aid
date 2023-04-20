@@ -257,6 +257,7 @@ class PathPlanner:
 
     def __map_angle_to_direction(self, heading_change):
         heading_change = round(8*(heading_change)/360, 0)
+        print("heading change", heading_change)
 
         if heading_change == 0 or heading_change == 8 or heading_change == -8:
             turn_direction = 'N'
@@ -320,6 +321,7 @@ class PathPlanner:
 
             # Calculate change in heading required
             heading_change = required_heading - heading
+            print(heading, required_heading, heading_change)
 
             # Map change in heading to direction
             turn_direction = self.__map_angle_to_direction(heading_change)
