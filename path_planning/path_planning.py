@@ -300,36 +300,36 @@ class PathPlanner:
 
         if path:
 
-        # Determine Required Heading
-        # if user is not at start (due to start being obstacle)
-        if start != path[0]:
-            # required heading is towards start
-            required_heading = self.__get_target_heading(start, path[0])
+            # Determine Required Heading
+            # if user is not at start (due to start being obstacle)
+            if start != path[0]:
+                # required heading is towards start
+                required_heading = self.__get_target_heading(start, path[0])
+            else:
+                # else required heading is towards next step
+                required_heading = self.__get_target_heading(path[0], path[1])
+
+            # Apply offset to current heading
+            heading = heading + offset
+            if heading >= 360:
+                heading -= 360
+
+            # Calculate change in heading required
+            heading_change = required_heading - heading
+
+            # Map change in heading to direction
+            turn_direction = self.__map_angle_to_direction(heading_change)
+
+            if print_map:
+                self.__print_map(path, path[0], path[-1])
+
+            if print_path:
+                # Translate path back from nodes to location
+                print(self.__translate_path(path))
+
+            return (turn_direction, destination_reached)
         else:
-            # else required heading is towards next step
-            required_heading = self.__get_target_heading(path[0], path[1])
-
-        # Apply offset to current heading
-        heading = heading + offset
-        if heading >= 360:
-            heading -= 360
-
-        # Calculate change in heading required
-        heading_change = required_heading - heading
-
-        # Map change in heading to direction
-        turn_direction = self.__map_angle_to_direction(heading_change)
-
-        if print_map:
-            self.__print_map(path, path[0], path[-1])
-
-        if print_path:
-            # Translate path back from nodes to location
-            print(self.__translate_path(path))
-
-        return (turn_direction, destination_reached)
-        else:
-            pass
+            return(False, False)
 
 
 # Usage Example
