@@ -42,31 +42,31 @@ def return_path(current_node):
     return path[::-1]
 
 
-def get_target_heading(path, node_density):
-    if len(path) == 1:
-        target_heading = 0
-    else:
-        required_movement_direction_x = node_density*(path[1][0] - path[0][0])
-        required_movement_direction_y = node_density*(path[1][1] - path[0][1])
-        required_movement_direction = (
-            required_movement_direction_x, required_movement_direction_y)
+def get_target_heading(node1, node2, node_density):
+    # 0 degrees is toward right on printed map
+    # +1 y is downwards
+    # +1 x is towards right
 
-        if required_movement_direction == (0, 1):
-            target_heading = 90
-        elif required_movement_direction == (1, 1):
-            target_heading = 45
-        elif required_movement_direction == (1, 0):
-            target_heading = 0
-        elif required_movement_direction == (1, -1):
-            target_heading = 315
-        elif required_movement_direction == (0, -1):
-            target_heading = 270
-        elif required_movement_direction == (-1, -1):
-            target_heading = 225
-        elif required_movement_direction == (-1, 0):
-            target_heading = 180
-        elif required_movement_direction == (-1, 1):
-            target_heading = 135
+    required_movement_direction_y = node_density*(node2[0] - node1[0])
+    required_movement_direction_x = node_density*(node2[1] - node1[1])
+
+    if required_movement_direction_x == 0 and required_movement_direction_y >= 1:
+        target_heading = 270
+    elif required_movement_direction_x >= 1 and required_movement_direction_y >= 1:
+        target_heading = 315
+    elif required_movement_direction_x >= 1 and required_movement_direction_y == 0:
+        target_heading = 0
+    elif required_movement_direction_x >= 1 and required_movement_direction_y <= -1:
+        target_heading = 45
+    elif required_movement_direction_x == 0 and required_movement_direction_y <= -1:
+        target_heading = 90
+    elif required_movement_direction_x <= -1 and required_movement_direction_y <= -1:
+        target_heading = 135
+    elif required_movement_direction_x <= -1 and required_movement_direction_y == 0:
+        target_heading = 180
+    elif required_movement_direction_x <= -1 and required_movement_direction_y >= 1:
+        target_heading = 225
+
     return target_heading
 
 
