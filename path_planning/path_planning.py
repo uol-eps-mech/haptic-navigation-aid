@@ -263,12 +263,15 @@ def get_cell_radius(x, y, distance=1):
     return neighbours
 
 
-def find_closest_node(node, env_map):
-    for close_node in get_one_cell_radius(node[0], node[1]):
-        if env_map[close_node[0]][close_node[1]] == 0:
-            new_node = close_node
-            continue
-    return new_node
+def find_closest_open_node(node, env_map):
+    for distance in range(min(len(env_map), len(env_map[0]))):
+        neighbours = get_cell_radius(node[0], node[1], distance)
+        for neighbour in neighbours:
+            try:
+                if env_map[neighbour[0]][neighbour[1]] == 0:
+                    return neighbour
+            except:
+                continue
 
 
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
