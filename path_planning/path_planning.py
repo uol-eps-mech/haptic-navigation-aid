@@ -36,7 +36,11 @@ class Node:
 class PathPlanner:
 
     def __init__(self, map_name):
-        map, node_density = load_map(map_name)
+        self.map_name = map_name
+        self.refresh_map()
+
+    def refresh_map(self):
+        map, node_density = load_map(self.map_name)
         self.map = map
         self.node_density = node_density
 
@@ -287,6 +291,7 @@ class PathPlanner:
         return translated_node
 
     def calculate_next_direction(self, start, end, heading, offset, print_map=False, print_path=False):
+        self.refresh_map()
         destination_reached = False
 
         # If user is within one cell of destination
