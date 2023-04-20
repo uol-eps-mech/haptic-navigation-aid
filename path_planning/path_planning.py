@@ -254,15 +254,12 @@ def astar(map, start, end, allow_diagonal_movement=True):
     return None
 
 
-def get_one_cell_radius(x, y):
+def get_cell_radius(x, y, distance=1):
     neighbours = []
-    radius = [(0, 0), (0, 1), (1, 0), (1, 1), (-1, -1),
-              (-1, 0), (0, -1), (1, -1), (-1, 1)]
+    radius = np.array([(0, 1), (1, 0), (1, 1), (-1, -1),
+              (-1, 0), (0, -1), (1, -1), (-1, 1)]) * distance
     for elm in radius:
-        try:
-            neighbours.append((x+elm[0], y+elm[1]))
-        except:
-            pass
+        neighbours.append((x+elm[0], y+elm[1]))
     return neighbours
 
 
