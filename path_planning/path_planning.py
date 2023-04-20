@@ -234,17 +234,17 @@ def astar(map, start, end, allow_diagonal_movement=True):
             else:
                 child.g = current_node.g + 1
 
-            for cell in get_one_cell_radius(child.position[0], child.position[1]):
+            for cell in get_cell_radius(child.position[0], child.position[1]):
                 try:
                     if map[cell[0]][cell[1]] == 0:
-                        child.g += 0.5
+                        child.f += 0.5
                 except:
                     pass
 
-            child.f = child.g + child.h
+            child.f += child.g + child.h
 
             # Child is already in the open list
-            if len([open_node for open_node in open_list if child.position == open_node.position and child.f >= open_node.f]) > 0:
+            if len([open_node for open_node in sorted(open_list) if child.position == open_node.position and child.f >= open_node.f]) > 0:
                 continue
 
             # Add the child to the open list
