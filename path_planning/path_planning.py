@@ -261,19 +261,19 @@ class PathPlanner:
         if heading_change == 0 or heading_change == 8 or heading_change == -8:
             turn_direction = 'N'
         elif heading_change == 1 or heading_change == -7:
-            turn_direction = 'NE'
+            turn_direction = 'NW'
         elif heading_change == 2 or heading_change == -6:
             turn_direction = 'W'
         elif heading_change == 3 or heading_change == -5:
-            turn_direction = 'SE'
+            turn_direction = 'SW'
         elif heading_change == 4 or heading_change == -4:
             turn_direction = 'S'
         elif heading_change == 5 or heading_change == -3:
-            turn_direction = 'SW'
+            turn_direction = 'SE'
         elif heading_change == 6 or heading_change == -2:
             turn_direction = 'E'
         elif heading_change == 7 or heading_change == -1:
-            turn_direction = 'NW'
+            turn_direction = 'NE'
 
         return (turn_direction)
 
