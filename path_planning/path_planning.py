@@ -285,8 +285,6 @@ def find_closest_open_node(node, env_map):
 
 def calculate_next_direction(start, end, heading, offset, map_name, print_map=False, print_path=False):
     destination_reached = False
-    # print(env_map)
-    # print(start, end, heading)
 
     # Define node density
     env_map, distance_between_nodes = load_map(map_name)
