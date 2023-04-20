@@ -257,19 +257,19 @@ class PathPlanner:
         if heading_change == 0 or heading_change == 8 or heading_change == -8:
             turn_direction = 'N'
         elif heading_change == 1 or heading_change == -7:
-            turn_direction = 'NW'
+            turn_direction = 'NE'
         elif heading_change == 2 or heading_change == -6:
             turn_direction = 'W'
         elif heading_change == 3 or heading_change == -5:
-            turn_direction = 'SW'
+            turn_direction = 'SE'
         elif heading_change == 4 or heading_change == -4:
             turn_direction = 'S'
         elif heading_change == 5 or heading_change == -3:
-            turn_direction = 'SE'
+            turn_direction = 'SW'
         elif heading_change == 6 or heading_change == -2:
             turn_direction = 'E'
         elif heading_change == 7 or heading_change == -1:
-            turn_direction = 'NE'
+            turn_direction = 'NW'
 
         return (turn_direction)
 
@@ -300,34 +300,34 @@ class PathPlanner:
 
         if path:
 
-            # Determine Required Heading
-            # if user is not at start (due to start being obstacle)
-            if start != path[0]:
-                # required heading is towards start
+                # Determine Required Heading
+                # if user is not at start (due to start being obstacle)
+                if start != path[0]:
+                    # required heading is towards start
                 required_heading = self.__get_target_heading(start, path[0])
-            else:
-                # else required heading is towards next step
+                else:
+                    # else required heading is towards next step
                 required_heading = self.__get_target_heading(path[0], path[1])
 
-            # Apply offset to current heading
-            heading = heading + offset
-            if heading >= 360:
-                heading -= 360
+                # Apply offset to current heading
+                heading = heading + offset
+                if heading >= 360:
+                    heading -= 360
 
-            # Calculate change in heading required
-            heading_change = required_heading - heading
+                # Calculate change in heading required
+                heading_change = required_heading - heading
 
-            # Map change in heading to direction
-            turn_direction = self.__map_angle_to_direction(heading_change)
+                # Map change in heading to direction
+                turn_direction = self.__map_angle_to_direction(heading_change)
 
-            if print_map:
-                self.__print_map(path, path[0], path[-1])
+                if print_map:
+                    self.__print_map(path, path[0], path[-1])
 
-            if print_path:
-                # Translate path back from nodes to location
-                print(self.__translate_path(path))
+                if print_path:
+                    # Translate path back from nodes to location
+                    print(self.__translate_path(path))
 
-            return (turn_direction, destination_reached)
+                return (turn_direction, destination_reached)
         else:
             return(False, False)
 
