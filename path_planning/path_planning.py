@@ -142,8 +142,17 @@ def astar(map, start, end, allow_diagonal_movement=True):
     """
 
     # Create start and end node
+    # If start is an obstacle, set start to nearest open node
+    if map[start[0]][start[1]] != 0:
+        start = find_closest_open_node(start, map)
+
     start_node = Node(None, start)
     start_node.g = start_node.h = start_node.f = 0
+
+    # If end is an obstacle, set end to nearest open node
+    if map[end[0]][end[1]] != 0:
+        end = find_closest_open_node(end, map)
+
     end_node = Node(None, end)
     end_node.g = end_node.h = end_node.f = 0
 
@@ -283,40 +292,40 @@ def calculate_next_direction(start, end, heading, offset, map_name, print_map=Fa
     env_map, distance_between_nodes = load_map(map_name)
     node_density = 1/distance_between_nodes
 
-    if end in get_one_cell_radius(start[0], start[1]):
+    # If user is within one cell of destination
+    if end in get_cell_radius(start[0], start[1]):
+        # User has arrived
         destination_reached = True
         return (None, destination_reached)
 
-    if env_map[start[0]][start[1]] != 0:
-        start = find_closest_node(start, env_map)
-
-    if env_map[end[0]][end[1]] != 0:
-        end = find_closest_node(end, env_map)
-
+    # Determine Optimal Path
     path = astar(env_map, start, end)
-    # print(path)
 
-    if print_map:
-        print_map_fun(env_map, path, start, end)
+    # Determine Required Heading
+    if start != path[0]: # if user is not at start (due to start being obstacle)
+        # required heading is towards start
+        required_heading = get_target_heading(start, path[0], node_density)
+    else:
+        # else required heading is towards next step
+        required_heading = get_target_heading(path[0], path[1], node_density)
 
-    # Translate path back from nodes to location
-    path = translate_path(env_map, path, node_density)
-
-    if print_path:
-        print(path)
-
-    # heading calculations
-    required_heading = get_target_heading(path, node_density)
-
+    # Apply offset to current heading
     heading = heading + offset
     if heading >= 360:
         heading -= 360
+    
+    # Calculate change in heading required
     heading_change = required_heading - heading
 
-    print(heading, required_heading, heading_change)
-
+    # Map change in heading to direction
     turn_direction = map_angle_to_direction(heading_change)
-    print(turn_direction)
+
+    if print_map:
+        print_map_fun(env_map, path, path[0], path[-1])
+
+    if print_path:
+        # Translate path back from nodes to location
+        print(translate_path(env_map, path, node_density))
 
     return (turn_direction, destination_reached)
 
