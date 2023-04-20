@@ -2,7 +2,7 @@ import numpy as np
 from random import randint
 from warnings import warn
 import heapq
-from map import load_map
+from path_planning.map import load_map
 
 
 class Node:
@@ -32,13 +32,14 @@ class Node:
     def __gt__(self, other):
         return self.f > other.f
 
+
 class PathPlanner:
 
     def __init__(self, map_name):
         map, node_density = load_map(map_name)
         self.map = map
         self.node_density = node_density
-    
+
     def change_map(self, new_map):
         self.map = new_map
 
@@ -148,7 +149,8 @@ class PathPlanner:
                 child.h = (((child.position[0] - end_node.position[0]) ** 2) + (
                     (child.position[1] - end_node.position[1]) ** 2)) ** 0.5
 
-                if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:  # Diagonal move
+                # Diagonal move
+                if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:
                     child.g = current_node.g + 1.414
                 else:
                     child.g = current_node.g + 1
@@ -172,15 +174,13 @@ class PathPlanner:
         warn("Couldn't get a path to destination")
         return None
 
-
     def get_cell_radius(self, x, y, distance=1):
         neighbours = []
         radius = np.array([(0, 1), (1, 0), (1, 1), (-1, -1),
-                        (-1, 0), (0, -1), (1, -1), (-1, 1)]) * distance
+                           (-1, 0), (0, -1), (1, -1), (-1, 1)]) * distance
         for elm in radius:
             neighbours.append((x+elm[0], y+elm[1]))
         return neighbours
-
 
     def find_closest_open_node(self, node):
         for distance in range(min(len(self.map), len(self.map[0]))):
@@ -199,7 +199,6 @@ class PathPlanner:
             path.append(current.position)
             current = current.parent
         return path[::-1]
-
 
     def __get_target_heading(self, node1, node2):
         # 0 degrees is toward right on printed map
@@ -228,7 +227,6 @@ class PathPlanner:
 
         return target_heading
 
-
     def __print_map(self, path, start, end):
         for step in path:
             self.map[step[0]][step[1]] = 2
@@ -253,7 +251,6 @@ class PathPlanner:
                     line.append(" L ")
             print("".join(line))
 
-
     def __map_angle_to_direction(self, heading_change):
         heading_change = round(8*(heading_change)/360, 0)
 
@@ -276,13 +273,11 @@ class PathPlanner:
 
         return (turn_direction)
 
-
     def __translate_path(self, path):
         translated_path = []
         for step in path:
             translated_path.append(self.__translate_node(step))
         return (translated_path)
-
 
     def __translate_node(self, node):
         x_origin, y_origin = (0, 0)
