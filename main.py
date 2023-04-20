@@ -170,5 +170,8 @@ def update():
         update_destination_location(None)
         return
     else:
-        print("Next Direction", next_direction)
-        haptic_output.play_direction(next_direction)
+        if (next_direction):
+            print("Next Direction", next_direction)
+            haptic_output.play_direction(next_direction)
+        else:
+            pass

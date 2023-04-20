@@ -298,6 +298,8 @@ class PathPlanner:
         # Determine Optimal Path
         path = self.astar(start, end)
 
+        if path:
+
         # Determine Required Heading
         # if user is not at start (due to start being obstacle)
         if start != path[0]:
@@ -326,6 +328,9 @@ class PathPlanner:
             print(self.__translate_path(path))
 
         return (turn_direction, destination_reached)
+        else:
+            pass
+
 
 # Usage Example
 # pp = PathPlanner("foyer")
