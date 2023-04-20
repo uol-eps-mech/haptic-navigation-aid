@@ -208,9 +208,11 @@ class PathPlanner:
         # 0 degrees is toward right on printed map
         # +1 y is downwards
         # +1 x is towards right
-
+        
+        print(node1, node2)
         required_movement_direction_y = (node2[0] - node1[0])
         required_movement_direction_x = (node2[1] - node1[1])
+        print(required_movement_direction_y, required_movement_direction_x)
 
         if required_movement_direction_x == 0 and required_movement_direction_y >= 1:
             target_heading = 90
