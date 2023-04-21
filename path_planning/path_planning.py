@@ -288,8 +288,8 @@ class PathPlanner:
 
     def __translate_node(self, node):
         x_origin, y_origin = (0, 0)
-        translated_x = ((node[1] + 1)/self.node_density)-x_origin
-        translated_y = ((len(self.map)-node[0])/self.node_density)-y_origin
+        translated_x = ((node[1] + 1)*self.node_density)-x_origin
+        translated_y = ((len(self.map)-node[0])*self.node_density)-y_origin
         translated_node = (translated_x, translated_y)
         return translated_node
 
