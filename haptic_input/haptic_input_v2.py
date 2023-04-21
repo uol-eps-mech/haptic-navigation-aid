@@ -18,7 +18,7 @@ colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0)]
 R = Pin(13, Pin.OUT, Pin.PULL_DOWN)
 G = Pin(14, Pin.OUT, Pin.PULL_DOWN)
 B = Pin(15, Pin.OUT, Pin.PULL_DOWN)
-led = [R,G,B]
+led = [R, G, B]
 
 switch = Pin(16, Pin.IN)
 motor = Pin(6, Pin.OUT, Pin.PULL_DOWN)
@@ -51,20 +51,27 @@ def connect():
 
 def turn_off_led():
     for pin in led:
-        led[pin].value(0)
+        pin.value(0)
+
 
 def turn_on_leds():
     for pin in led:
-        led[pin].value(1)
+        pin.value(1)
+
 
 def set_led_color(color):
     for id, val in enumerate(color):
         led[id].value(val)
 
-def play_haptic_motor():
-    motor.value(1)
-    time.sleep(0.5)
-    motor.value(0)
+
+def play_haptic_motor(count=1, length=0.2, delay=0.1):
+    for i in range(count):
+        motor.value(1)
+        time.sleep(length)
+        motor.value(0)
+        if count > 1:
+            time.sleep(delay)
+
 
 def setup():
     for pin in buttonPins:
@@ -74,6 +81,7 @@ def setup():
     sequence.clear()
     destination_sequence.clear()
     turn_off_led()
+    play_haptic_motor(3)
 
 
 def get_input_states():
@@ -206,21 +214,17 @@ def get_destination_sequence(buttonStates):
 
 setup()
 while True:
-    time.sleep(0.8)
+    time.sleep(0.5)
     buttonStates, switchOn = get_input_states()
 
-    print("here")
     recording_mapping_sequence = False
     recording_destination_sequence = False
-    previous_state = switchOn
 
     while (switchOn):
         buttonStates, switchOn = get_input_states()
         if (not switchOn):
-            break
-
-        if (switchOn != previous_state):
             play_haptic_motor()
+            break
 
         if (not any(buttonStates)):
             continue
@@ -234,16 +238,12 @@ while True:
 
         if (recording_mapping_sequence):
             recording_mapping_sequence = record_sequence(buttonStates)
-        
-        previous_state = switchOn
 
     while (not switchOn):
         buttonStates, switchOn = get_input_states()
         if (switchOn):
-            break
-
-        if (switchOn != previous_state):
             play_haptic_motor()
+            break
 
         if (not any(buttonStates)):
             continue
@@ -260,5 +260,3 @@ while True:
         if (recording_destination_sequence):
             recording_destination_sequence = get_destination_sequence(
                 buttonStates)
-            
-        previous_state = switchOn
