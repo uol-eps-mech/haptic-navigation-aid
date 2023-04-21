@@ -161,7 +161,7 @@ class PathPlanner:
 
                 for cell in self.get_cell_radius(child.position[0], child.position[1]):
                     try:
-                        if self.map[cell[0]][cell[1]] == 0:
+                        if self.map[cell[0]][cell[1]] != 0:
                             child.f += 0.5
                     except:
                         pass
@@ -208,7 +208,7 @@ class PathPlanner:
         # 0 degrees is toward right on printed map
         # +1 y is downwards
         # +1 x is towards right
-        
+
         print(node1, node2)
         required_movement_direction_y = (node2[0] - node1[0])
         required_movement_direction_x = (node2[1] - node1[1])
@@ -337,9 +337,10 @@ class PathPlanner:
 
             return (turn_direction, destination_reached)
         else:
-            return(False, False)
+            return (False, False)
 
 
 # Usage Example
 # pp = PathPlanner("foyer")
-# pp.calculate_next_direction(start=(2, 14), heading=0, end=(31, 8), offset=0, print_map=True, print_path=True)
+# pp.calculate_next_direction(start=(2, 14), heading=0, end=(
+#     31, 8), offset=0, print_map=True, print_path=True)
