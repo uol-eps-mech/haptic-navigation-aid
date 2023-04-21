@@ -75,10 +75,16 @@ def update_destination_location(location):
     jsonFile.close()
 
 
-def format_sequence(sequence):
+def format_sequence_int(sequence):
     string_sequence = sequence.split(",")
     int_sequence = [int(x) for x in string_sequence]
     return int_sequence
+
+
+def format_sequence_bool(sequence):
+    string_sequence = sequence.split(",")
+    bool_sequence = [bool(x) for x in string_sequence]
+    return bool_sequence
 
 
 def get_destination():
@@ -98,13 +104,19 @@ async def root():
     print("Hello World")
     return {"message": "Hello World"}
 
+@app.get("/playobstacle/{direction}")
+def play_obstacle(direction):
+    print("Play Obstacle Request Received")
+    haptic_output.inidicate_obstacle(format_sequence_bool(direction))
+    return {"message": "Played direction: " + str(direction)}
+
 
 @app.get("/mapsequence/{sequence}")
 def map_sequence(sequence):
     print("Map Sequence Request received")
-    x, y, h = localisation.get_user_location()
+    x, y = localisation.get_user_position()
     add_or_update_sequence_mapping(
-        str((x, y)), format_sequence(sequence))
+        str((x, y)), format_sequence_int(sequence))
     return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
 
 
@@ -118,7 +130,7 @@ def play_ack_sequence():
 @app.get("/playsequence/{sequence}")
 def play_entered_sequence(sequence):
     print("PLay sequence Request received")
-    haptic_output.play_sequence(format_sequence(sequence))
+    haptic_output.play_sequence(format_sequence_int(sequence))
     return {"message": "playing sequence: " + sequence}
 
 
@@ -137,13 +149,13 @@ def play_button(motor):
 
 @app.get("/getlocation/{sequence}")
 def get_location(sequence):
-    location = get_location_from_sequence(format_sequence(sequence))
+    location = get_location_from_sequence(format_sequence_int(sequence))
     return {"message": location}
 
 
 @app.get("/setdestination/{sequence}")
 def update_destination(sequence):
-    destination = get_location_from_sequence(format_sequence(sequence))
+    destination = get_location_from_sequence(format_sequence_int(sequence))
     if destination:
         update_destination_location(destination)
         return {"message": "destination updated to: " + destination}
