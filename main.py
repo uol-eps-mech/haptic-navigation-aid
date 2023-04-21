@@ -131,7 +131,7 @@ def play_location_sequence(location):
 @app.get("/playmotor/{motor}")
 def play_button(motor):
     print("Playing motor", motor)
-    haptic_output.play_motor(motor)
+    haptic_output.play_motor(int(motor))
     return {"message": "playing motor: '" + motor + "'"}
 
 
@@ -162,12 +162,16 @@ def update():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (13 - int(y*2), int(x*2)), destination, h, 360-125, True, True)
+        (13 - int(y*2), int(x*2)), destination, h,360-170, True, True)
 
     if (destination_reached):
-        play_ack_sequence()
         print("Destination Reached")
+        play_ack_sequence()
+        update_destination_location(None)
         return
     else:
-        haptic_output.play_direction(next_direction)
-        print("Next Direction", next_direction)
+        if (next_direction):
+            print("Next Direction", next_direction)
+            haptic_output.play_direction(next_direction)
+        else:
+            pass

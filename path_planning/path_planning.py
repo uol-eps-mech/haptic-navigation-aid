@@ -2,7 +2,7 @@ import numpy as np
 from random import randint
 from warnings import warn
 import heapq
-from map import load_map
+from path_planning.map import load_map
 
 
 class Node:
@@ -32,13 +32,18 @@ class Node:
     def __gt__(self, other):
         return self.f > other.f
 
+
 class PathPlanner:
 
     def __init__(self, map_name):
-        map, node_density = load_map(map_name)
+        self.map_name = map_name
+        self.refresh_map()
+
+    def refresh_map(self):
+        map, node_density = load_map(self.map_name)
         self.map = map
         self.node_density = node_density
-    
+
     def change_map(self, new_map):
         self.map = new_map
 
@@ -148,14 +153,15 @@ class PathPlanner:
                 child.h = (((child.position[0] - end_node.position[0]) ** 2) + (
                     (child.position[1] - end_node.position[1]) ** 2)) ** 0.5
 
-                if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:  # Diagonal move
+                # Diagonal move
+                if abs(child.position[0]) - abs(child.parent.position[0]) != 0 and abs(child.position[1]) - abs(child.parent.position[1]) != 0:
                     child.g = current_node.g + 1.414
                 else:
                     child.g = current_node.g + 1
 
                 for cell in self.get_cell_radius(child.position[0], child.position[1]):
                     try:
-                        if self.map[cell[0]][cell[1]] == 0:
+                        if self.map[cell[0]][cell[1]] != 0:
                             child.f += 0.5
                     except:
                         pass
@@ -172,15 +178,13 @@ class PathPlanner:
         warn("Couldn't get a path to destination")
         return None
 
-
     def get_cell_radius(self, x, y, distance=1):
         neighbours = []
         radius = np.array([(0, 1), (1, 0), (1, 1), (-1, -1),
-                        (-1, 0), (0, -1), (1, -1), (-1, 1)]) * distance
+                           (-1, 0), (0, -1), (1, -1), (-1, 1)]) * distance
         for elm in radius:
             neighbours.append((x+elm[0], y+elm[1]))
         return neighbours
-
 
     def find_closest_open_node(self, node):
         for distance in range(min(len(self.map), len(self.map[0]))):
@@ -200,34 +204,34 @@ class PathPlanner:
             current = current.parent
         return path[::-1]
 
-
     def __get_target_heading(self, node1, node2):
         # 0 degrees is toward right on printed map
         # +1 y is downwards
         # +1 x is towards right
 
+        print(node1, node2)
         required_movement_direction_y = (node2[0] - node1[0])
         required_movement_direction_x = (node2[1] - node1[1])
+        print(required_movement_direction_y, required_movement_direction_x)
 
         if required_movement_direction_x == 0 and required_movement_direction_y >= 1:
-            target_heading = 270
+            target_heading = 90
         elif required_movement_direction_x >= 1 and required_movement_direction_y >= 1:
-            target_heading = 315
+            target_heading = 45
         elif required_movement_direction_x >= 1 and required_movement_direction_y == 0:
             target_heading = 0
         elif required_movement_direction_x >= 1 and required_movement_direction_y <= -1:
-            target_heading = 45
+            target_heading = 315
         elif required_movement_direction_x == 0 and required_movement_direction_y <= -1:
-            target_heading = 90
+            target_heading = 270
         elif required_movement_direction_x <= -1 and required_movement_direction_y <= -1:
-            target_heading = 135
+            target_heading = 225
         elif required_movement_direction_x <= -1 and required_movement_direction_y == 0:
             target_heading = 180
         elif required_movement_direction_x <= -1 and required_movement_direction_y >= 1:
-            target_heading = 225
+            target_heading = 135
 
         return target_heading
-
 
     def __print_map(self, path, start, end):
         for step in path:
@@ -253,29 +257,28 @@ class PathPlanner:
                     line.append(" L ")
             print("".join(line))
 
-
     def __map_angle_to_direction(self, heading_change):
         heading_change = round(8*(heading_change)/360, 0)
+        print("heading change", heading_change)
 
         if heading_change == 0 or heading_change == 8 or heading_change == -8:
             turn_direction = 'N'
         elif heading_change == 1 or heading_change == -7:
-            turn_direction = 'NW'
+            turn_direction = 'NE'
         elif heading_change == 2 or heading_change == -6:
             turn_direction = 'W'
         elif heading_change == 3 or heading_change == -5:
-            turn_direction = 'SW'
+            turn_direction = 'SE'
         elif heading_change == 4 or heading_change == -4:
             turn_direction = 'S'
         elif heading_change == 5 or heading_change == -3:
-            turn_direction = 'SE'
+            turn_direction = 'SW'
         elif heading_change == 6 or heading_change == -2:
             turn_direction = 'E'
         elif heading_change == 7 or heading_change == -1:
-            turn_direction = 'NE'
+            turn_direction = 'NW'
 
         return (turn_direction)
-
 
     def __translate_path(self, path):
         translated_path = []
@@ -283,15 +286,15 @@ class PathPlanner:
             translated_path.append(self.__translate_node(step))
         return (translated_path)
 
-
     def __translate_node(self, node):
         x_origin, y_origin = (0, 0)
-        translated_x = ((node[1] + 1)/self.node_density)-x_origin
-        translated_y = ((len(self.map)-node[0])/self.node_density)-y_origin
+        translated_x = ((node[1] + 1)*self.node_density)-x_origin
+        translated_y = ((len(self.map)-node[0])*self.node_density)-y_origin
         translated_node = (translated_x, translated_y)
         return translated_node
 
     def calculate_next_direction(self, start, end, heading, offset, print_map=False, print_path=False):
+        self.refresh_map()
         destination_reached = False
 
         # If user is within one cell of destination
@@ -303,35 +306,41 @@ class PathPlanner:
         # Determine Optimal Path
         path = self.astar(start, end)
 
-        # Determine Required Heading
-        # if user is not at start (due to start being obstacle)
-        if start != path[0]:
-            # required heading is towards start
-            required_heading = self.__get_target_heading(start, path[0])
+        if path:
+            # Determine Required Heading
+            # if user is not at start (due to start being obstacle)
+            if start != path[0]:
+                # required heading is towards start
+                required_heading = self.__get_target_heading(start, path[0])
+            else:
+                # else required heading is towards next step
+                required_heading = self.__get_target_heading(path[0], path[1])
+
+            # Apply offset to current heading
+            heading = heading + offset
+            if heading >= 360:
+                heading -= 360
+
+            # Calculate change in heading required
+            heading_change = required_heading - heading
+            print(heading, required_heading, heading_change)
+
+            # Map change in heading to direction
+            turn_direction = self.__map_angle_to_direction(heading_change)
+
+            if print_map:
+                self.__print_map(path, path[0], path[-1])
+
+            if print_path:
+                # Translate path back from nodes to location
+                print(self.__translate_path(path))
+
+            return (turn_direction, destination_reached)
         else:
-            # else required heading is towards next step
-            required_heading = self.__get_target_heading(path[0], path[1])
+            return (False, False)
 
-        # Apply offset to current heading
-        heading = heading + offset
-        if heading >= 360:
-            heading -= 360
-
-        # Calculate change in heading required
-        heading_change = required_heading - heading
-
-        # Map change in heading to direction
-        turn_direction = self.__map_angle_to_direction(heading_change)
-
-        if print_map:
-            self.__print_map(path, path[0], path[-1])
-
-        if print_path:
-            # Translate path back from nodes to location
-            print(self.__translate_path(path))
-
-        return (turn_direction, destination_reached)
 
 # Usage Example
 # pp = PathPlanner("foyer")
-# pp.calculate_next_direction(start=(2, 14), heading=0, end=(31, 8), offset=0, print_map=True, print_path=True)
+# pp.calculate_next_direction(start=(2, 14), heading=0, end=(
+#     31, 8), offset=0, print_map=True, print_path=True)
