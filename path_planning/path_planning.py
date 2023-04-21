@@ -37,6 +37,7 @@ class PathPlanner:
 
     def __init__(self, map_name):
         self.map_name = map_name
+        self.prev_path = []
         self.refresh_map()
 
     def refresh_map(self):
@@ -59,7 +60,7 @@ class PathPlanner:
         # Create start and end node
         # If start is an obstacle, set start to nearest open node
         if self.map[start[0]][start[1]] != 0:
-            start = self.find_closest_open_node(start)
+            start = self.find_valid_start(start)
 
         start_node = Node(None, start)
         start_node.g = start_node.h = start_node.f = 0
@@ -162,7 +163,7 @@ class PathPlanner:
                 for cell in self.get_cell_radius(child.position[0], child.position[1]):
                     try:
                         if self.map[cell[0]][cell[1]] != 0:
-                            child.f += 0.5
+                            child.g += 0.5
                     except:
                         pass
 
@@ -195,6 +196,28 @@ class PathPlanner:
                         return neighbour
                 except:
                     continue
+
+
+    def find_valid_start(self, node):
+        if (len(self.prev_path) <= 1):
+            return self.find_closest_open_node(node)
+        
+        target = self.prev_path[1]
+        candidate = {"distance": 1000, "position": None}
+        for distance in range(min(len(self.map), len(self.map[0]))):
+            neighbours = self.get_cell_radius(node[0], node[1], distance)
+            for neighbour in neighbours:
+                try:
+                    if self.map[neighbour[0]][neighbour[1]] == 0:
+                        distance_to_target =  (((neighbour[0] - target[0]) ** 2) + ((neighbour[1] - target[1]) ** 2)) ** 0.5
+                        if distance_to_target <= candidate["distance"]:
+                            print(distance_to_target, neighbour)
+                            candidate={"distance": distance_to_target, "position": neighbour}
+                except:
+                    continue
+            if candidate["position"] != None:
+                print("returning", candidate)
+                return candidate["position"]
 
     def __return_path(self, current_node):
         path = []
@@ -305,6 +328,7 @@ class PathPlanner:
 
         # Determine Optimal Path
         path = self.astar(start, end)
+        self.prev_path = path
 
         if path:
             # Determine Required Heading
@@ -342,5 +366,7 @@ class PathPlanner:
 
 # Usage Example
 # pp = PathPlanner("foyer")
-# pp.calculate_next_direction(start=(2, 14), heading=0, end=(
-#     31, 8), offset=0, print_map=True, print_path=True)
+# pp.prev_path = [(7, 5), (6, 4), (6, 3), (6, 2)]
+# pp.prev_path = [(3, 12), (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 10), (10, 9), (11, 8), (12, 7), (13, 7), (14, 7), (15, 6), (16, 5), (17, 5), (18, 5), (19, 6), (20, 7)]
+# pp.calculate_next_direction(start=(4, 14), heading=0, end=(
+#     20,7), offset=0, print_map=True, print_path=True)
