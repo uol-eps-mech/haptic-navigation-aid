@@ -48,7 +48,7 @@ class PathPlanner:
     def change_map(self, new_map):
         self.map = new_map
 
-    def astar(self, start, end, allow_diagonal_movement=True):
+    def astar(self, start, end, hug_objects=False, allow_diagonal_movement=True):
         """
         Returns a list of tuples as a path from the given start to the given end in the given map
         :param map:
@@ -163,7 +163,7 @@ class PathPlanner:
                 for cell in self.get_cell_radius(child.position[0], child.position[1]):
                     try:
                         if self.map[cell[0]][cell[1]] != 0:
-                            child.g += 0.5
+                            child.g += -0.2 if hug_objects else 0.2
                     except:
                         pass
 
@@ -197,11 +197,10 @@ class PathPlanner:
                 except:
                     continue
 
-
     def find_valid_start(self, node):
         if (len(self.prev_path) <= 1):
             return self.find_closest_open_node(node)
-        
+
         target = self.prev_path[1]
         candidate = {"distance": 1000, "position": None}
         for distance in range(min(len(self.map), len(self.map[0]))):
@@ -209,10 +208,12 @@ class PathPlanner:
             for neighbour in neighbours:
                 try:
                     if self.map[neighbour[0]][neighbour[1]] == 0:
-                        distance_to_target =  (((neighbour[0] - target[0]) ** 2) + ((neighbour[1] - target[1]) ** 2)) ** 0.5
+                        distance_to_target = (
+                            ((neighbour[0] - target[0]) ** 2) + ((neighbour[1] - target[1]) ** 2)) ** 0.5
                         if distance_to_target <= candidate["distance"]:
                             print(distance_to_target, neighbour)
-                            candidate={"distance": distance_to_target, "position": neighbour}
+                            candidate = {
+                                "distance": distance_to_target, "position": neighbour}
                 except:
                     continue
             if candidate["position"] != None:
@@ -316,7 +317,7 @@ class PathPlanner:
         translated_node = (translated_x, translated_y)
         return translated_node
 
-    def calculate_next_direction(self, start, end, heading, offset, print_map=False, print_path=False):
+    def calculate_next_direction(self, start, end, heading, offset, print_map=False, print_path=False, hug_objects=False):
         self.refresh_map()
         destination_reached = False
 
@@ -327,7 +328,7 @@ class PathPlanner:
             return (None, destination_reached)
 
         # Determine Optimal Path
-        path = self.astar(start, end)
+        path = self.astar(start, end, hug_objects)
         self.prev_path = path
 
         if path:
@@ -365,8 +366,9 @@ class PathPlanner:
 
 
 # Usage Example
-# pp = PathPlanner("foyer")
+# pp = PathPlanner("foyer_2")
 # pp.prev_path = [(7, 5), (6, 4), (6, 3), (6, 2)]
-# pp.prev_path = [(3, 12), (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 10), (10, 9), (11, 8), (12, 7), (13, 7), (14, 7), (15, 6), (16, 5), (17, 5), (18, 5), (19, 6), (20, 7)]
-# pp.calculate_next_direction(start=(4, 14), heading=0, end=(
-#     20,7), offset=0, print_map=True, print_path=True)
+# pp.prev_path = [(3, 12), (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 10), (10, 9),
+#                 (11, 8), (12, 7), (13, 7), (14, 7), (15, 6), (16, 5), (17, 5), (18, 5), (19, 6), (20, 7)]
+# pp.calculate_next_direction(start=(30, 17), heading=0, end=(
+#     10, 0), offset=0, print_map=True, print_path=True, hug_objects=False)
