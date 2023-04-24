@@ -48,7 +48,7 @@ class PathPlanner:
     def change_map(self, new_map):
         self.map = new_map
 
-    def astar(self, start, end, hug_objects, allow_diagonal_movement=True):
+    def astar(self, start, end, hug_objects=False, allow_diagonal_movement=True):
         """
         Returns a list of tuples as a path from the given start to the given end in the given map
         :param map:
@@ -56,11 +56,6 @@ class PathPlanner:
         :param end:
         :return:
         """
-
-        if hug_objects:
-            g_alt = -0.2
-        else:
-            g_alt = 0.2
 
         # Create start and end node
         # If start is an obstacle, set start to nearest open node
@@ -168,7 +163,7 @@ class PathPlanner:
                 for cell in self.get_cell_radius(child.position[0], child.position[1]):
                     try:
                         if self.map[cell[0]][cell[1]] != 0:
-                            child.g += g_alt
+                            child.g += -0.2 if hug_objects else 0.2
                     except:
                         pass
 
