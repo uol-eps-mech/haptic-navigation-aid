@@ -105,13 +105,8 @@ class HapticOutput:
         # Clear sequence on all motors
         self.clear_sequences()
 
-        for button in sequence:
-            self.south.sequence[0] = self.north.sequence[0] = self.west.sequence[0] = self.east.sequence[0] = adafruit_drv2605.Effect(
-                self.map_button_to_effect(button))
-            self.south.play()
-            self.north.play()
-            self.east.play()
-            self.west.play()
+        for motor in sequence:
+            self.play_motor(motor)
             sleep(1)
 
     def map_button_to_effect(self, button):
