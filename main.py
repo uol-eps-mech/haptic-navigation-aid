@@ -240,18 +240,6 @@ def update():
         else:
             pass
 
-@app.get("/testplayobstacle/{direction}")
-def testplay_obstacle(direction):
-    start_time = time.time()
-
-    print("Play Obstacle Request Received")
-    haptic_output.inidicate_obstacle(format_sequence_bool(direction))
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, 1, 2)
-    return {"message": "Played direction: " + str(direction)}
-
 @app.get("/testplaymotor/{motor}")
 def testplay_button(motor):
     start_time = time.time()
@@ -259,20 +247,8 @@ def testplay_button(motor):
     haptic_output.play_motor(int(motor))
     end_time = time.time()
     elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, 1, 2)
+    add_execution_time(elapsed_time, int(motor), 2)
     return {"message": "playing motor: '" + motor + "'"}
-
-@app.get("/testmapsequence/{sequence}")
-def testmap_sequence(sequence):
-    start_time = time.time()
-    print("Map Sequence Request received")
-    x, y = localisation.get_user_position()
-    add_or_update_sequence_mapping(
-        str((1, 2)), format_sequence_int(sequence))
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, 1, 2)
-    return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
 
 @app.get("/testplayacksequence")
 def testplay_ack_sequence():
@@ -304,3 +280,16 @@ def testget_nearest_landmark():
     elapsed_time = end_time - start_time
     add_execution_time(elapsed_time, 1, 2)
     return {"message": "Nearest landmark found: '" + str(landmark) + "' with sequence: '" + str(sequence) + "'."}
+
+@app.get("/testmapsequence/{sequence}")
+def testmap_sequence(sequence):
+    start_time = time.time()
+    print("Map Sequence Request received")
+    x, y = localisation.get_user_position()
+    int_sequence =format_sequence_int(sequence)
+    add_or_update_sequence_mapping(
+        str((1, 2)), format_sequence_int(int_sequence))
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    add_execution_time(elapsed_time, len(int_sequence), 2)
+    return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
