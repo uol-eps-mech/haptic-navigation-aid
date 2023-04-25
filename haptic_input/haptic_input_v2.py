@@ -10,10 +10,11 @@ sequence = [1, 2, 3, 4]
 destination_sequence = [1, 2, 3, 4]
 
 action_button = 5
+location_request_button = 4
 buttonPins = [0, 1, 2, 3, 4, 5]
 buttons = []
 
-colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0)]
+colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (0, 1, 1), (1, 0, 1)]
 
 R = Pin(13, Pin.OUT, Pin.PULL_DOWN)
 G = Pin(14, Pin.OUT, Pin.PULL_DOWN)
@@ -54,7 +55,7 @@ def turn_off_led():
         pin.value(0)
 
 
-def turn_on_leds():
+def turn_on_led():
     for pin in led:
         pin.value(1)
 
@@ -101,7 +102,7 @@ def flash_leds():
     for _ in range(1):
         turn_off_led()
         time.sleep(0.1)
-        turn_on_leds()
+        turn_on_led()
         time.sleep(0.1)
         turn_off_led()
         time.sleep(0.2)
@@ -155,6 +156,13 @@ def send_set_destination_request(sequence):
     response.close()
 
 
+def send_get_nearest_landmark_request():
+    print("sending get neaerest landmark request")
+    request_url = base_url + "/getnearestlandmark"
+    response = urequests.get(str(request_url))
+    response.close()
+
+
 def send_play_motor_request(motor):
     if (not (int(motor) <= 5 and int(motor) >= 0)):
         print("invalid motor")
@@ -164,14 +172,15 @@ def send_play_motor_request(motor):
     response = urequests.get(str(request_url))
     response.close()
 
-def safe_request(request_func, arg = None):
+
+def safe_request(request_func, arg=None):
     try:
         if arg == None:
             request_func()
         else:
             request_func(arg)
     except:
-        play_haptic_motor(3, 0.1, 0.2)
+        play_haptic_motor(3, 0.4, 0.2)
 
 
 def record_sequence(buttonStates):
@@ -179,12 +188,13 @@ def record_sequence(buttonStates):
         if (not buttonStates[action_button]):
             for id, state in enumerate(buttonStates):
                 if state == 1:
-                    led.on()
-                    led.color = colors[id]
+                    turn_on_led()
+                    set_led_color(colors[id])
                     sequence.append(str(id))
                     safe_request(send_play_motor_request, id)
                     time.sleep(debounce)
                     turn_off_led()
+                    play_haptic_motor()
                     print("Button", id+1, "pressed")
                     print("Current Sequence:", sequence)
             return True
@@ -193,7 +203,7 @@ def record_sequence(buttonStates):
             time.sleep(0.5)
             safe_request(send_map_sequence_request, sequence)
             flash_leds()
-            safe_request(send_play_sequence_request,sequence)
+            safe_request(send_play_sequence_request, sequence)
             sequence.clear()
             return False
     return True
@@ -209,6 +219,7 @@ def get_destination_sequence(buttonStates):
                     safe_request(send_play_motor_request, id)
                     time.sleep(debounce)
                     turn_off_led()
+                    play_haptic_motor()
                     print("Button", id+1, "pressed")
                     print("Current Sequence:", destination_sequence)
             return True
@@ -233,14 +244,19 @@ while True:
     while (switchOn):
         buttonStates, switchOn = get_input_states()
         if (not switchOn):
-            play_haptic_motor()
+            play_haptic_motor(2)
             break
 
         if (not any(buttonStates)):
             continue
 
-        if (any(buttonStates) and not buttonStates[action_button] and not recording_mapping_sequence):
-            play_haptic_motor(2, 0.1, 0.2)
+        if (any(buttonStates) and not (buttonStates[action_button] or buttonStates[location_request_button]) and not recording_mapping_sequence):
+            play_haptic_motor(3, 0.1, 0.2)
+
+        if (buttonStates[location_request_button] and not recording_mapping_sequence):
+            play_haptic_motor()
+            safe_request(send_get_nearest_landmark_request)
+            continue
 
         if (buttonStates[action_button] and not recording_mapping_sequence):
             print("recording mapping sequence")
@@ -263,11 +279,11 @@ while True:
             continue
 
         if (any(buttonStates) and not buttonStates[action_button] and not recording_destination_sequence):
-            play_haptic_motor(2, 0.1, 0.2)
+            play_haptic_motor(3, 0.1, 0.2)
 
         if (buttonStates[action_button] and not recording_destination_sequence):
             print("recording destination sequence")
-            play_haptic_motor()
+            play_haptic_motor(2)
             safe_request(send_play_ack_sequence_request)
             recording_destination_sequence = True
             time.sleep(1)

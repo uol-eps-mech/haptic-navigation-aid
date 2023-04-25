@@ -5,6 +5,7 @@ from path_planning.path_planning import PathPlanner
 import json
 import board
 import adafruit_tca9548a
+import math
 
 acknowledgement_effect_id = 47
 error_effect_id = 27
@@ -99,10 +100,27 @@ def get_destination():
         return None
 
 
+def find_nearest_landmark(x, y):
+    jsonFile = open("store.json", "r")
+    mappings = json.load(jsonFile)["mappings"]
+    jsonFile.close()
+
+    try:
+        shortest_distance = 200
+        nearest_landmark = None
+        for location in mappings:
+            if (math.dist((x, y), eval(location)) < shortest_distance):
+                nearest_landmark = mappings[location]
+        return (None, None) if nearest_landmark == None else (eval(location), mappings[location])
+    except:
+        return (None, None)
+
+
 @app.get("/")
 async def root():
     print("Hello World")
     return {"message": "Hello World"}
+
 
 @app.get("/playobstacle/{direction}")
 def play_obstacle(direction):
@@ -130,8 +148,11 @@ def play_ack_sequence():
 @app.get("/playsequence/{sequence}")
 def play_entered_sequence(sequence):
     print("PLay sequence Request received")
-    haptic_output.play_sequence(format_sequence_int(sequence))
-    return {"message": "playing sequence: " + sequence}
+    if isinstance(sequence, str) or isinstance(sequence[0], str):
+        sequence = format_sequence_int(sequence)
+
+    haptic_output.play_sequence(sequence)
+    return {"message": "playing sequence: " + str(sequence)}
 
 
 def play_location_sequence(location):
@@ -151,6 +172,22 @@ def play_button(motor):
 def get_location(sequence):
     location = get_location_from_sequence(format_sequence_int(sequence))
     return {"message": location}
+
+
+@app.get("/getnearestlandmark/")
+def get_nearest_landmark():
+    destination = get_destination()
+    update_destination_location(None)
+    x, y = localisation.get_user_position()
+    landmark, sequence = find_nearest_landmark(x, y)
+    if (landmark == None):
+        play_ack_sequence()
+        return {"message": "Nearest landmark found not found."}
+    else:
+        play_entered_sequence(sequence)
+
+    update_destination_location(destination)
+    return {"message": "Nearest landmark found: '" + str(landmark) + "' with sequence: '" + str(sequence) + "'."}
 
 
 @app.get("/setdestination/{sequence}")
@@ -174,7 +211,7 @@ def update():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (13 - int(y*2), int(x*2)), destination, h,360-170, True, True)
+        (13 - int(y*2), int(x*2)), destination, h, 360-170, True, True)
 
     if (destination_reached):
         print("Destination Reached")
