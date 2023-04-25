@@ -60,6 +60,7 @@ class PathPlanner:
         # Create start and end node
         # If start is an obstacle, set start to nearest open node
         if self.map[start[0]][start[1]] != 0:
+            print("invalid start node")
             start = self.find_valid_start(start)
 
         start_node = Node(None, start)
@@ -67,6 +68,7 @@ class PathPlanner:
 
         # If end is an obstacle, set end to nearest open node
         if self.map[end[0]][end[1]] != 0:
+            print("invalid end node")
             end = self.find_closest_open_node(end)
 
         end_node = Node(None, end)
