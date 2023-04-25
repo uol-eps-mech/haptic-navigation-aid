@@ -16,7 +16,7 @@ i2c = board.I2C()
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 haptic_output = HapticOutput(i2cExpander)
 localisation = Localisation(i2cExpander[6])
-path_planner = PathPlanner("Lab_1")
+path_planner = PathPlanner("foyer_2")
 
 app = FastAPI()
 
