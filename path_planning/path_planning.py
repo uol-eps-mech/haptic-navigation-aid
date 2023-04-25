@@ -60,7 +60,7 @@ class PathPlanner:
         # Create start and end node
         # If start is an obstacle, set start to nearest open node
         if self.map[start[0]][start[1]] != 0:
-            print("invalid start node")
+            # print("invalid start node")
             start = self.find_valid_start(start)
 
         start_node = Node(None, start)
@@ -68,7 +68,7 @@ class PathPlanner:
 
         # If end is an obstacle, set end to nearest open node
         if self.map[end[0]][end[1]] != 0:
-            print("invalid end node")
+            # print("invalid end node")
             end = self.find_closest_open_node(end)
 
         end_node = Node(None, end)
@@ -213,13 +213,13 @@ class PathPlanner:
                         distance_to_target = (
                             ((neighbour[0] - target[0]) ** 2) + ((neighbour[1] - target[1]) ** 2)) ** 0.5
                         if distance_to_target <= candidate["distance"]:
-                            print(distance_to_target, neighbour)
+                            # print(distance_to_target, neighbour)
                             candidate = {
                                 "distance": distance_to_target, "position": neighbour}
                 except:
                     continue
             if candidate["position"] != None:
-                print("returning", candidate)
+                # print("returning", candidate)
                 return candidate["position"]
 
     def __return_path(self, current_node):
@@ -235,10 +235,10 @@ class PathPlanner:
         # +1 y is downwards
         # +1 x is towards right
 
-        print(node1, node2)
+        # print(node1, node2)
         required_movement_direction_y = (node2[0] - node1[0])
         required_movement_direction_x = (node2[1] - node1[1])
-        print(required_movement_direction_y, required_movement_direction_x)
+        # print(required_movement_direction_y, required_movement_direction_x)
 
         if required_movement_direction_x == 0 and required_movement_direction_y >= 1:
             target_heading = 270
@@ -285,7 +285,7 @@ class PathPlanner:
 
     def __map_angle_to_direction(self, heading_change):
         heading_change = round(8*(heading_change)/360, 0)
-        print("heading change", heading_change)
+        # print("heading change", heading_change)
 
         if heading_change == 0 or heading_change == 8 or heading_change == -8:
             turn_direction = 'N'
