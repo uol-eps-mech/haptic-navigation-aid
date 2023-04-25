@@ -241,21 +241,21 @@ class PathPlanner:
         print(required_movement_direction_y, required_movement_direction_x)
 
         if required_movement_direction_x == 0 and required_movement_direction_y >= 1:
-            target_heading = 90
+            target_heading = 270
         elif required_movement_direction_x >= 1 and required_movement_direction_y >= 1:
-            target_heading = 45
+            target_heading = 315
         elif required_movement_direction_x >= 1 and required_movement_direction_y == 0:
             target_heading = 0
         elif required_movement_direction_x >= 1 and required_movement_direction_y <= -1:
-            target_heading = 315
+            target_heading = 45
         elif required_movement_direction_x == 0 and required_movement_direction_y <= -1:
-            target_heading = 270
+            target_heading = 90
         elif required_movement_direction_x <= -1 and required_movement_direction_y <= -1:
-            target_heading = 225
+            target_heading = 135
         elif required_movement_direction_x <= -1 and required_movement_direction_y == 0:
             target_heading = 180
         elif required_movement_direction_x <= -1 and required_movement_direction_y >= 1:
-            target_heading = 135
+            target_heading = 225
 
         return target_heading
 
