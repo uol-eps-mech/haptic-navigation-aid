@@ -211,7 +211,7 @@ def update():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (44 - int(y*2), int(x*2)), destination, h, 360-170, True, True)
+        (44 - int(y*2), int(x*2)), destination, h, 360-350, True, True)
 
     if (destination_reached):
         print("Destination Reached")
