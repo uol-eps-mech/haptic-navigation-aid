@@ -1,4 +1,5 @@
-import board, time
+import board
+import time
 import adafruit_tca9548a
 import adafruit_drv2605
 import sys
@@ -13,6 +14,6 @@ i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 drv = adafruit_drv2605.DRV2605(i2cExpander[int(sys.argv[1])])
 
 while True:
-    drv.sequence[0] = adafruit_drv2605.Effect(51)
+    drv.sequence[0] = adafruit_drv2605.Effect(7)
     drv.play()
     time.sleep(2)

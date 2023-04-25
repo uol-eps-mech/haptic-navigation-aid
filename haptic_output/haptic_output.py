@@ -92,9 +92,9 @@ class HapticOutput:
         if center:
             left = right = True
         if left:
-            self.left_obstacle.sequence[0] = 8  # soft bump 60%
+            self.left_obstacle.sequence[0] = 7  # soft bump 60%
         if right:
-            self.right_obstacle.sequence[0] = 8  # soft bump 60%
+            self.right_obstacle.sequence[0] = 7  # soft bump 60%
 
         self.left_obstacle.play()
         self.right_obstacle.play()
