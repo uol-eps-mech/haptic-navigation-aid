@@ -241,7 +241,7 @@ def update():
             pass
 
 @app.get("/testupdate")
-def update():
+def test_update():
     start_time = time.time()
     destination = get_destination()
     destination = (13 - int(destination[1]*2), int(destination[0]*2))
