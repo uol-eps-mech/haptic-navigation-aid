@@ -1,4 +1,4 @@
 {
-    "mappings": {},
-    "destination": null
+    "mappings": {"(5, 6)": [101]},
+    "destination": "(5, 6)"
 }
