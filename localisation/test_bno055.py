@@ -55,4 +55,4 @@ def test_bno055():
         print(heading)
 
 
-test_bno055
+test_bno055()
