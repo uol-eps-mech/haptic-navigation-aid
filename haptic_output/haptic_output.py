@@ -77,7 +77,7 @@ class HapticOutput:
             sleep(delay)  # sleep for 'delay' no. of seconds
 
     def play_motor(self, motor_id):
-        self.motors[motor_id].sequence[0] = 1
+        self.motors[motor_id].sequence[0] = adafruit_drv2605.Effect(1)
         self.motors[motor_id].play()
 
     def inidicate_obstacle(self, direction):
@@ -92,9 +92,11 @@ class HapticOutput:
         if center:
             left = right = True
         if left:
-            self.left_obstacle.sequence[0] = 7  # soft bump 60%
+            self.left_obstacle.sequence[0] = adafruit_drv2605.Effect(
+                7)  # soft bump 60%
         if right:
-            self.right_obstacle.sequence[0] = 7  # soft bump 60%
+            self.right_obstacle.sequence[0] = adafruit_drv2605.Effect(
+                7)  # soft bump 60%
 
         self.left_obstacle.play()
         self.right_obstacle.play()
