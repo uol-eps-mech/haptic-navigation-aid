@@ -112,9 +112,11 @@ def find_nearest_landmark(x, y):
         shortest_distance = 200
         nearest_landmark = None
         for location in mappings:
-            if (math.dist((x, y), eval(location)) < shortest_distance):
-                nearest_landmark = mappings[location]
-        return (None, None) if nearest_landmark == None else (eval(location), mappings[location])
+            distance = math.dist((x, y), eval(location))
+            if (distance < shortest_distance):
+                nearest_landmark = (eval(location), mappings[location])
+                shortest_distance = distance
+        return (None, None) if nearest_landmark == None else nearest_landmark
     except:
         return (None, None)
     
