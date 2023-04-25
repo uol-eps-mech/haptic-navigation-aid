@@ -17,12 +17,11 @@ class HapticOutput:
         # Create 4 DRV2605 objects and give them each an SDA+SCL on the i2cBus
         self.north = adafruit_drv2605.DRV2605(i2cBus[1])
         self.south = adafruit_drv2605.DRV2605(i2cBus[0])
-        self.east = adafruit_drv2605.DRV2605(i2cBus[2])
+        self.east = adafruit_drv2605.DRV2605(i2cBus[5])
         self.west = adafruit_drv2605.DRV2605(i2cBus[3])
         self.motors = [self.north, self.south, self.east, self.west]
         self.left_obstacle = adafruit_drv2605.DRV2605(i2cBus[4])
-        self.right_obstacle = adafruit_drv2605.DRV2605(i2cBus[5])
-
+        self.right_obstacle = adafruit_drv2605.DRV2605(i2cBus[2])
 
     def clear_sequences(self):
         # Set sequence on motor to empty list
@@ -93,10 +92,10 @@ class HapticOutput:
         if center:
             left = right = True
         if left:
-            self.left_obstacle.sequence[0] = 8 #soft bump 60%
+            self.left_obstacle.sequence[0] = 8  # soft bump 60%
         if right:
-            self.right_obstacle.sequence[0] = 8 #soft bump 60%
-        
+            self.right_obstacle.sequence[0] = 8  # soft bump 60%
+
         self.left_obstacle.play()
         self.right_obstacle.play()
 
