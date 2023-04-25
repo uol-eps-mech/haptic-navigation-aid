@@ -242,23 +242,30 @@ def update():
 
 @app.get("/testupdate")
 def test_update():
-    print("here")
+    print("1")
     start_time = time.time()
     destination = get_destination()
     destination = (13 - int(destination[1]*2), int(destination[0]*2))
+
+    print("2")
 
     if (not destination):
         return
     
     a,b, c = localisation.get_user_location()
 
+    print("3")
+
     start = free_points[random.randint(0, len(free_points))]
     end = free_points[random.randint(0, len(free_points))]
     h = random.randint(0, 360)
 
+    print("4")
+
     next_direction, destination_reached = path_planner.calculate_next_direction(
         start, end, h, 0, True, True)
 
+    print("5")
     end_time = time.time()
     elapsed_time = end_time - start_time
     add_execution_time(elapsed_time, start, end)
@@ -274,4 +281,4 @@ def test_update():
             # haptic_output.play_direction(next_direction)
         else:
             pass
-    
+    print("6")
