@@ -240,36 +240,67 @@ def update():
         else:
             pass
 
-@app.get("/testupdate")
-def test_update():
+@app.get("/testplayobstacle/{direction}")
+def testplay_obstacle(direction):
     start_time = time.time()
-    destination = get_destination()
-    destination = (13 - int(destination[1]*2), int(destination[0]*2))
 
-    if (not destination):
-        return
-    
-    a,b, c = localisation.get_user_location()
-
-    start = free_points[random.randint(0, len(free_points))]
-    end = free_points[random.randint(0, len(free_points))]
-    h = random.randint(0, 360)
-
-    next_direction, destination_reached = path_planner.calculate_next_direction(
-        start, end, h, 0, False, False)
+    print("Play Obstacle Request Received")
+    haptic_output.inidicate_obstacle(format_sequence_bool(direction))
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, start, end)
+    add_execution_time(elapsed_time, 1, 2)
+    return {"message": "Played direction: " + str(direction)}
 
-    if (destination_reached):
-        # print("Destination Reached")
-        # play_ack_sequence()
-        # update_destination_location(None)
-        return
+@app.get("/testplaymotor/{motor}")
+def testplay_button(motor):
+    start_time = time.time()
+    print("Playing motor", motor)
+    haptic_output.play_motor(int(motor))
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    add_execution_time(elapsed_time, 1, 2)
+    return {"message": "playing motor: '" + motor + "'"}
+
+@app.get("/testmapsequence/{sequence}")
+def testmap_sequence(sequence):
+    start_time = time.time()
+    print("Map Sequence Request received")
+    x, y = localisation.get_user_position()
+    add_or_update_sequence_mapping(
+        str((1, 2)), format_sequence_int(sequence))
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    add_execution_time(elapsed_time, 1, 2)
+    return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
+
+@app.get("/testplayacksequence")
+def testplay_ack_sequence():
+    start_time = time.time()
+    print("PLay ack Request received")
+    haptic_output.play_effect(acknowledgement_effect_id, 0.5, 2)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    add_execution_time(elapsed_time, 1, 2)
+    return {"message": "playing acknowledgement sequence"}
+
+@app.get("/testgetnearestlandmark")
+def testget_nearest_landmark():
+    start_time = time.time()
+
+    destination = get_destination()
+    update_destination_location(None)
+    x, y = localisation.get_user_position()
+    landmark, sequence = find_nearest_landmark(random.randint(1,6), random.randint(1,6))
+    if (landmark == None):
+        play_ack_sequence()
+        return {"message": "Nearest landmark found not found."}
     else:
-        if (next_direction):
-            print("Next Direction", next_direction)
-            # haptic_output.play_direction(next_direction)
-        else:
-            pass
+        play_entered_sequence(sequence)
+
+    print("Landmark", landmark)
+    update_destination_location(destination)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    add_execution_time(elapsed_time, 1, 2)
+    return {"message": "Nearest landmark found: '" + str(landmark) + "' with sequence: '" + str(sequence) + "'."}
