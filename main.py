@@ -242,6 +242,7 @@ def update():
 
 @app.get("/testupdate")
 def test_update():
+    print("here")
     start_time = time.time()
     destination = get_destination()
     destination = (13 - int(destination[1]*2), int(destination[0]*2))
@@ -256,7 +257,7 @@ def test_update():
     h = random.randint(0, 360)
 
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        start, end, h,0, True, True)
+        start, end, h, 0, True, True)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
