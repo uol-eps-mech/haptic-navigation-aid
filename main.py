@@ -295,3 +295,21 @@ def testmap_sequence(sequence):
     elapsed_time = end_time - start_time
     add_execution_time(elapsed_time, len(int_sequence), 2)
     return {"message": "Sequence '" + sequence + "' mapped to location: '" + str((x, y)) + "'"}
+
+@app.get("/testsetdestination/{sequence}")
+def testupdate_destination(sequence):
+    start_time = time.time()
+    destination = get_location_from_sequence(format_sequence_int(sequence))
+    if destination:
+        update_destination_location(destination)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        add_execution_time(elapsed_time, 1, 2)
+        return {"message": "destination updated to: " + destination}
+    else:
+        haptic_output.play_effect(error_effect_id, 0.5, 2)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        add_execution_time(elapsed_time, 0, 2)
+        return {"message": "Sequence received is not mapped to a location"}
+    
