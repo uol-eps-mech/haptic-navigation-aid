@@ -16,7 +16,7 @@ i2c = board.I2C()
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 haptic_output = HapticOutput(i2cExpander)
 localisation = Localisation(i2cExpander[6])
-path_planner = PathPlanner("foyer_2")
+path_planner = PathPlanner("foyer")
 
 app = FastAPI()
 
@@ -204,14 +204,14 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
-    destination = (44 - int(destination[1]*2), int(destination[0]*2))
+    destination = (45 - int(destination[1]*2), int(destination[0]*2))
     print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (44 - int(y*2), int(x*2)), destination, 360-h, 61, True, True)
+        (45 - int(y*2), int(x*2)), destination, 360-h, 61, True, True)
 
     if (destination_reached):
         print("Destination Reached")
