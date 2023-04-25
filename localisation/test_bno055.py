@@ -3,6 +3,8 @@
 import adafruit_bno055
 import board
 import time
+import board
+import adafruit_tca9548a
 
 
 class Localisation:
@@ -49,7 +51,9 @@ class Localisation:
 
 
 def test_bno055():
-    localisation = Localisation(board.I2C())
+    i2c = board.I2C()
+    i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
+    localisation = Localisation(i2cExpander[6])
     while True:
         heading = localisation.get_user_heading()
         print(heading)
