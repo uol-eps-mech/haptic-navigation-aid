@@ -317,9 +317,14 @@ class PathPlanner:
         translated_node = (translated_x, translated_y)
         return translated_node
 
-    def calculate_next_direction(self, start, end, heading, offset, print_map=False, print_path=False, hug_objects=False):
+    def calculate_next_direction(self, start, end, heading, offset, print_map=True, print_path=True, hug_objects=False):
         self.refresh_map()
         destination_reached = False
+
+        print("start", start)
+        print("end", end)
+        print("heading", heading)
+        print("offset", offset)
 
         # If user is within one cell of destination
         if end in self.get_cell_radius(start[0], start[1]):
@@ -348,7 +353,9 @@ class PathPlanner:
 
             # Calculate change in heading required
             heading_change = required_heading - heading
-            print(heading, required_heading, heading_change)
+            print("heading", heading)
+            print("required_heading", required_heading)
+            print("heading_change", heading_change)
 
             # Map change in heading to direction
             turn_direction = self.__map_angle_to_direction(heading_change)
