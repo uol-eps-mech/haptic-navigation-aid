@@ -174,7 +174,7 @@ def get_location(sequence):
     return {"message": location}
 
 
-@app.get("/getnearestlandmark/")
+@app.get("/getnearestlandmark")
 def get_nearest_landmark():
     destination = get_destination()
     update_destination_location(None)
