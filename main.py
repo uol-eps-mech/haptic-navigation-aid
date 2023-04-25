@@ -288,9 +288,9 @@ def testmap_sequence(sequence):
     start_time = time.time()
     print("Map Sequence Request received")
     x, y = localisation.get_user_position()
-    int_sequence =format_sequence_int(sequence)
+    int_sequence = format_sequence_int(sequence)
     add_or_update_sequence_mapping(
-        str((1, 2)), format_sequence_int(int_sequence))
+        str((1, 2)), int_sequence)
     end_time = time.time()
     elapsed_time = end_time - start_time
     add_execution_time(elapsed_time, len(int_sequence), 2)
