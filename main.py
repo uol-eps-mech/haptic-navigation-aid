@@ -151,6 +151,7 @@ def play_entered_sequence(sequence):
     if isinstance(sequence, str) or isinstance(sequence[0], str):
         sequence = format_sequence_int(sequence)
 
+    print("playing sequence", sequence)
     haptic_output.play_sequence(sequence)
     return {"message": "playing sequence: " + str(sequence)}
 
@@ -186,6 +187,7 @@ def get_nearest_landmark():
     else:
         play_entered_sequence(sequence)
 
+    print("Landmark", landmark)
     update_destination_location(destination)
     return {"message": "Nearest landmark found: '" + str(landmark) + "' with sequence: '" + str(sequence) + "'."}
 
