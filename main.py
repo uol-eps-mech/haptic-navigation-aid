@@ -278,7 +278,7 @@ def testget_nearest_landmark():
     update_destination_location(destination)
     end_time = time.time()
     elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, 1, 2)
+    add_execution_time(elapsed_time, len(sequence), 2)
     return {"message": "Nearest landmark found: '" + str(landmark) + "' with sequence: '" + str(sequence) + "'."}
 
 @app.get("/testmapsequence/{sequence}")
