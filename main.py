@@ -230,14 +230,14 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
-    destination = (23 - round(destination[1]), round(destination[0]))
+    destination = (22 - round(destination[1]), round(destination[0]))
     print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (23 - round(y), round(x)), destination, 360-h, 28, True, True)
+        (22 - round(y), round(x)), destination, 360-h, 28, True, True)
 
     if (destination_reached):
         print("Destination Reached")
