@@ -346,7 +346,7 @@ class PathPlanner:
                 required_heading = self.__get_target_heading(start, path[0])
             else:
                 # else required heading is towards next step
-                required_heading = self.__get_target_heading(path[0], path[2])
+                required_heading = self.__get_target_heading(path[0], path[1])
 
             # Apply offset to current heading
             heading = heading + offset
