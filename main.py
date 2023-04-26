@@ -304,7 +304,7 @@ def test_update():
     if (destination_reached):
         # print("Destination Reached")
         # play_ack_sequence()
-        update_destination_location(None)
+        # update_destination_location(None)
         return
     else:
         if (next_direction):
