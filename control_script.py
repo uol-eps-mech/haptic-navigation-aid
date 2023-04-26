@@ -1,8 +1,8 @@
 import requests
 from time import sleep
-url = "http://192.168.137.13:8000/update"
+url = "http://192.168.137.13:8000/testupdate"
 
 while True:
     print("Sending Request")
     requests.get(url)
-    sleep(0.5) #2Hz 
+    sleep(0.5)  # 2Hz
