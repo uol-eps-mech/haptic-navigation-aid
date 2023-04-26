@@ -132,6 +132,14 @@ def add_to_user_path(position):
     file.close()
 
 
+def round(x):
+    base = int(x)
+    if x - base >= 0.75:
+        return base + 1
+    else:
+        return base
+
+
 @app.get("/")
 async def root():
     print("Hello World")
@@ -222,14 +230,14 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
-    destination = (23 - int(destination[1]), int(destination[0]))
+    destination = (23 - round(destination[1]), round(destination[0]))
     print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (23 - int(y), int(x)), destination, 360-h, 28, True, True)
+        (23 - round(y), round(x)), destination, 360-h, 28, True, True)
 
     if (destination_reached):
         print("Destination Reached")
