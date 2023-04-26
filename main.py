@@ -295,7 +295,7 @@ def test_update():
     h = random.randint(0, 360)
 
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        start, end, h, 0, True, True)
+        start, end, h, 0, False, False)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
@@ -308,7 +308,8 @@ def test_update():
         return
     else:
         if (next_direction):
-            print("Next Direction", next_direction)
+            pass
+            # print("Next Direction", next_direction)
             # haptic_output.play_direction(next_direction)
         else:
             pass
