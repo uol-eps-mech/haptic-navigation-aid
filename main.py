@@ -8,7 +8,6 @@ import adafruit_tca9548a
 import math
 import random
 import time
-from free_points import free_points
 
 acknowledgement_effect_id = 47
 error_effect_id = 27
@@ -19,7 +18,7 @@ i2c = board.I2C()
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 haptic_output = HapticOutput(i2cExpander)
 localisation = Localisation(i2cExpander[6])
-path_planner = PathPlanner("foyer")
+path_planner = PathPlanner("foyer_1m")
 
 app = FastAPI()
 
@@ -119,15 +118,17 @@ def find_nearest_landmark(x, y):
         return (None, None) if nearest_landmark == None else nearest_landmark
     except:
         return (None, None)
-    
+
+
 def add_execution_time(time, start, end):
     file = open("update_execution_times.csv", "a+")
     file.write(str(time) + "," + str(start) + "," + str(end) + "\n")
     file.close()
 
+
 def add_to_user_path(position):
     file = open("user_paths.csv", "a+")
-    file.write( str(position) + "\n")
+    file.write(str(position) + "\n")
     file.close()
 
 
@@ -221,14 +222,14 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
-    destination = (45 - int(destination[1]*2), int(destination[0]*2))
+    destination = (23 - int(destination[1]*2), int(destination[0]*2))
     print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (45 - int(y*2), int(x*2)), destination, 360-h, 61, True, True)
+        (23 - int(y*2), int(x*2)), destination, 360-h, 61, True, True)
 
     if (destination_reached):
         print("Destination Reached")
