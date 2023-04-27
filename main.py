@@ -221,8 +221,7 @@ def get_nearest_landmark():
 def update_destination(sequence):
     destination = get_location_from_sequence(format_sequence_int(sequence))
     if destination:
-        update_destination_location(
-            (round(destination[0]), round(destination[1])))
+        update_destination_location(destination)
         return {"message": "destination updated to: " + str(destination)}
     else:
         haptic_output.play_effect(error_effect_id, 0.5, 2)
