@@ -47,7 +47,7 @@ def get_location_from_sequence(sequence):
 
     for elem in mappings:
         if mappings[elem] == sequence:
-            return eval(elem)
+            return elem
     return False
 
 
@@ -223,7 +223,7 @@ def update_destination(sequence):
     if destination:
         update_destination_location(
             (round(destination[0]), round(destination[1])))
-        return {"message": "destination updated to: " + destination}
+        return {"message": "destination updated to: " + str(destination)}
     else:
         haptic_output.play_effect(error_effect_id, 0.5, 2)
         return {"message": "Sequence received is not mapped to a location"}
