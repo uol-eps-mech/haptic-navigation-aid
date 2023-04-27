@@ -238,7 +238,7 @@ def update():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (22 - round(y), round(x)), destination, 360-h, 28, True, True)
+        (22 - round(y), round(x)), destination, 360-h, 88, True, True)
 
     if (destination_reached):
         print("Destination Reached")
@@ -253,63 +253,63 @@ def update():
             pass
 
 
-# @app.get("/testupdate")
-# def testupdate():
-#     destination = get_destination()
-#     destination = (22 - round(destination[1]), round(destination[0]))
-#     print(destination)
-#     if (not destination):
-#         return
-#     x, y, h = localisation.get_user_location()
-#     print("location", x, y, h)
-#     next_direction, destination_reached = path_planner.calculate_next_direction(
-#         (22 - round(y), round(x)), destination, 360-h, 28, True, True)
-
-#     if (destination_reached):
-#         print("Destination Reached")
-#         play_ack_sequence()
-#         update_destination_location(None)
-#         add_to_user_path("-------------Destination Reached-------------------")
-#         return
-#     else:
-#         if (next_direction):
-#             print("Next Direction", next_direction)
-#             haptic_output.play_direction(next_direction)
-#             add_to_user_path(str((x, y, 360 - h + 28)))
-#         else:
-#             pass
-
 @app.get("/testupdate")
-def test_update():
-    start_time = time.time()
+def testupdate():
     destination = get_destination()
-    destination = (22 - int(destination[1]*2), int(destination[0]*2))
-
+    destination = (22 - round(destination[1]), round(destination[0]))
+    print(destination)
     if (not destination):
         return
-
-    a, b, c = localisation.get_user_location()
-
-    start = free_points[random.randint(0, len(free_points))]
-    end = free_points[random.randint(0, len(free_points))]
-    h = random.randint(0, 360)
-
+    x, y, h = localisation.get_user_location()
+    print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        start, end, h, 0, False, False)
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    add_execution_time(elapsed_time, start, end)
+        (22 - round(y), round(x)), destination, 360-h, 88, True, True)
 
     if (destination_reached):
-        # print("Destination Reached")
-        # play_ack_sequence()
-        # update_destination_location(None)
+        print("Destination Reached")
+        play_ack_sequence()
+        update_destination_location(None)
+        add_to_user_path("-------------Destination Reached-------------------")
         return
     else:
         if (next_direction):
-            pass
-            # print("Next Direction", next_direction)
-            # haptic_output.play_direction(next_direction)
+            print("Next Direction", next_direction)
+            haptic_output.play_direction(next_direction)
+            add_to_user_path(str((x, y, 360 - h + 28)))
         else:
             pass
+
+# @app.get("/testupdate")
+# def test_update():
+#     start_time = time.time()
+#     destination = get_destination()
+#     destination = (22 - int(destination[1]*2), int(destination[0]*2))
+
+#     if (not destination):
+#         return
+
+#     a, b, c = localisation.get_user_location()
+
+#     start = free_points[random.randint(0, len(free_points))]
+#     end = free_points[random.randint(0, len(free_points))]
+#     h = random.randint(0, 360)
+
+#     next_direction, destination_reached = path_planner.calculate_next_direction(
+#         start, end, h, 0, False, False)
+
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+#     add_execution_time(elapsed_time, start, end)
+
+#     if (destination_reached):
+#         # print("Destination Reached")
+#         # play_ack_sequence()
+#         # update_destination_location(None)
+#         return
+#     else:
+#         if (next_direction):
+#             pass
+#             # print("Next Direction", next_direction)
+#             # haptic_output.play_direction(next_direction)
+#         else:
+#             pass
