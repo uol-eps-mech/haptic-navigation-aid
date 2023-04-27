@@ -58,7 +58,7 @@ def test_bno055():
 
     while True:
         heading = localisation.get_user_heading()
-        print(heading)
+        print(heading, 360-heading + 170)
 
 
 test_bno055()
