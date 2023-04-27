@@ -47,7 +47,7 @@ def get_location_from_sequence(sequence):
 
     for elem in mappings:
         if mappings[elem] == sequence:
-            return elem
+            return eval(elem)
     return False
 
 
