@@ -221,7 +221,8 @@ def get_nearest_landmark():
 def update_destination(sequence):
     destination = get_location_from_sequence(format_sequence_int(sequence))
     if destination:
-        update_destination_location(destination)
+        update_destination_location(
+            (round(destination[0]), round(destination[1])))
         return {"message": "destination updated to: " + destination}
     else:
         haptic_output.play_effect(error_effect_id, 0.5, 2)
@@ -238,7 +239,7 @@ def update():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (22 - round(y), round(x)), destination, 360-h, 73, True, True)
+        (22 - round(y), round(x)), destination, 360-h, 60, True, True)
 
     if (destination_reached):
         print("Destination Reached")
@@ -263,7 +264,7 @@ def testupdate():
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (22 - round(y), round(x)), destination, 360-h, 73, True, True)
+        (22 - round(y), round(x)), destination, 360-h, 60, True, True)
 
     if (destination_reached):
         print("Destination Reached")
