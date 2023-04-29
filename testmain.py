@@ -8,6 +8,7 @@ error_effect_id = 27
 
 app = FastAPI()
 
+times = []
 
 def add_or_update_sequence_mapping(location, sequence):
     jsonFile = open("store.json", "r")
@@ -183,14 +184,15 @@ def update_destination(sequence):
     else:
         return {"message": "Sequence received is not mapped to a location"}
 
-
 @app.get("/update")
 def update():
     return {"message": "Udpated"}
 
-@app.get("/ping/{time}")
+@app.get("/ping")
 def ping():
-    et = time.time()
-    elapsed_time = et - eval(time)
-    add_execution_time(elapsed_time, 0, 0)
+    t = time.time()
+    times.append(t)
+    if (len(times) > 1):
+        add_execution_time(times[-1] - times[-2], 0, 0)
+        # print("Latency", times[-1] - times[-2])
     return {"message": "hey"}
