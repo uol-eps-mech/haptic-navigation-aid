@@ -108,7 +108,7 @@ def find_nearest_landmark(x, y):
     
 def add_execution_time(time, start, end):
     file = open("update_execution_times.csv", "a+")
-    file.write(str(time) + "," + str(start) + "," + str(end) + "\n")
+    file.write(str(time) + "\n")
     file.close()
 
 def add_to_user_path(position):
