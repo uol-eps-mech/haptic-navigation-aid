@@ -19,7 +19,7 @@ i2c = board.I2C()
 i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
 haptic_output = HapticOutput(i2cExpander)
 localisation = Localisation(i2cExpander[6])
-path_planner = PathPlanner("foyer")
+path_planner = PathPlanner("foyer_1m")
 
 app = FastAPI()
 
@@ -119,16 +119,26 @@ def find_nearest_landmark(x, y):
         return (None, None) if nearest_landmark == None else nearest_landmark
     except:
         return (None, None)
-    
+
+
 def add_execution_time(time, start, end):
     file = open("update_execution_times.csv", "a+")
     file.write(str(time) + "," + str(start) + "," + str(end) + "\n")
     file.close()
 
+
 def add_to_user_path(position):
     file = open("user_paths.csv", "a+")
-    file.write( str(position) + "\n")
+    file.write(str(position) + "\n")
     file.close()
+
+
+def round(x):
+    base = int(x)
+    if x - base >= 0.75:
+        return base + 1
+    else:
+        return base
 
 
 @app.get("/")
@@ -212,7 +222,7 @@ def update_destination(sequence):
     destination = get_location_from_sequence(format_sequence_int(sequence))
     if destination:
         update_destination_location(destination)
-        return {"message": "destination updated to: " + destination}
+        return {"message": "destination updated to: " + str(destination)}
     else:
         haptic_output.play_effect(error_effect_id, 0.5, 2)
         return {"message": "Sequence received is not mapped to a location"}
@@ -221,14 +231,14 @@ def update_destination(sequence):
 @app.get("/update")
 def update():
     destination = get_destination()
-    destination = (45 - int(destination[1]*2), int(destination[0]*2))
+    destination = (22 - round(destination[1]), round(destination[0]))
     print(destination)
     if (not destination):
         return
     x, y, h = localisation.get_user_location()
     print("location", x, y, h)
     next_direction, destination_reached = path_planner.calculate_next_direction(
-        (45 - int(y*2), int(x*2)), destination, 360-h, 61, True, True)
+        (22 - round(y), round(x)), destination, 360 - h, 20, True, True)
 
     if (destination_reached):
         print("Destination Reached")
@@ -241,3 +251,65 @@ def update():
             haptic_output.play_direction(next_direction)
         else:
             pass
+
+
+@app.get("/testupdate")
+def testupdate():
+    destination = get_destination()
+    destination = (22 - round(destination[1]), round(destination[0]))
+    print(destination)
+    if (not destination):
+        return
+    x, y, h = localisation.get_user_location()
+    print("location", x, y, h)
+    next_direction, destination_reached = path_planner.calculate_next_direction(
+        (22 - round(y), round(x)), destination, 360 - h, 20, True, True)
+
+    if (destination_reached):
+        print("Destination Reached")
+        play_ack_sequence()
+        update_destination_location(None)
+        add_to_user_path("-------------Destination Reached-------------------")
+        return
+    else:
+        if (next_direction):
+            print("Next Direction", next_direction)
+            haptic_output.play_direction(next_direction)
+            add_to_user_path(str((x, y, 360 - h + 28)))
+        else:
+            pass
+
+# @app.get("/testupdate")
+# def test_update():
+#     start_time = time.time()
+#     destination = get_destination()
+#     destination = (22 - int(destination[1]*2), int(destination[0]*2))
+
+#     if (not destination):
+#         return
+
+#     a, b, c = localisation.get_user_location()
+
+#     start = free_points[random.randint(0, len(free_points))]
+#     end = free_points[random.randint(0, len(free_points))]
+#     h = random.randint(0, 360)
+
+#     next_direction, destination_reached = path_planner.calculate_next_direction(
+#         start, end, h, 0, False, False)
+
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+#     add_execution_time(elapsed_time, start, end)
+
+#     if (destination_reached):
+#         # print("Destination Reached")
+#         # play_ack_sequence()
+#         # update_destination_location(None)
+#         return
+#     else:
+#         if (next_direction):
+#             pass
+#             # print("Next Direction", next_direction)
+#             # haptic_output.play_direction(next_direction)
+#         else:
+#             pass

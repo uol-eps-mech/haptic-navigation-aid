@@ -193,11 +193,12 @@ class PathPlanner:
         for distance in range(min(len(self.map), len(self.map[0]))):
             neighbours = self.get_cell_radius(node[0], node[1], distance)
             for neighbour in neighbours:
-                try:
-                    if self.map[neighbour[0]][neighbour[1]] == 0:
-                        return neighbour
-                except:
-                    continue
+                if neighbour[0] >= 0 and neighbour[1] >= 0:
+                    try:
+                        if self.map[neighbour[0]][neighbour[1]] == 0:
+                            return neighbour
+                    except:
+                        continue
 
     def find_valid_start(self, node):
         if (len(self.prev_path) <= 1):
@@ -323,10 +324,10 @@ class PathPlanner:
         self.refresh_map()
         destination_reached = False
 
-        # print("start", start)
-        # print("end", end)
-        # print("heading", heading)
-        # print("offset", offset)
+        print("start", start)
+        print("end", end)
+        print("heading", heading)
+        print("offset", offset)
 
         # If user is within one cell of destination
         if end in self.get_cell_radius(start[0], start[1]):
@@ -346,7 +347,7 @@ class PathPlanner:
                 required_heading = self.__get_target_heading(start, path[0])
             else:
                 # else required heading is towards next step
-                required_heading = self.__get_target_heading(path[0], path[2])
+                required_heading = self.__get_target_heading(path[0], path[1])
 
             # Apply offset to current heading
             heading = heading + offset
@@ -355,9 +356,9 @@ class PathPlanner:
 
             # Calculate change in heading required
             heading_change = required_heading - heading
-            # print("heading", heading)
-            # print("required_heading", required_heading)
-            # print("heading_change", heading_change)
+            print("heading", heading)
+            print("required_heading", required_heading)
+            print("heading_change", heading_change)
 
             # Map change in heading to direction
             turn_direction = self.__map_angle_to_direction(heading_change)
@@ -375,9 +376,9 @@ class PathPlanner:
 
 
 # Usage Example
-# pp = PathPlanner("foyer_2")
-# pp.prev_path = [(7, 5), (6, 4), (6, 3), (6, 2)]
-# pp.prev_path = [(3, 12), (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 10), (10, 9),
-#                 (11, 8), (12, 7), (13, 7), (14, 7), (15, 6), (16, 5), (17, 5), (18, 5), (19, 6), (20, 7)]
-# pp.calculate_next_direction(start=(30, 17), heading=0, end=(
-#     10, 0), offset=0, print_map=True, print_path=True, hug_objects=False)
+# pp = PathPlanner("foyer")
+# # pp.prev_path = [(7, 5), (6, 4), (6, 3), (6, 2)]
+# # pp.prev_path = [(3, 12), (4, 11), (5, 11), (6, 11), (7, 11), (8, 11), (9, 10), (10, 9),
+# #                 (11, 8), (12, 7), (13, 7), (14, 7), (15, 6), (16, 5), (17, 5), (18, 5), (19, 6), (20, 7)]
+# pp.calculate_next_direction(start=(37, 6), heading=0, end=(
+#     0, 16), offset=0, print_map=True, print_path=True, hug_objects=False)

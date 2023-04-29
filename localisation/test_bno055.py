@@ -54,9 +54,11 @@ def test_bno055():
     i2c = board.I2C()
     i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
     localisation = Localisation(i2cExpander[6])
+    # localisation = Localisation(i2c)
+
     while True:
         heading = localisation.get_user_heading()
-        print(heading)
+        print(heading, 360-heading + 170)
 
 
 test_bno055()
