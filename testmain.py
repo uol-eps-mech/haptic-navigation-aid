@@ -2,6 +2,8 @@ from fastapi import FastAPI
 import json
 import math
 import time
+import random
+from free_points import free_points
 
 acknowledgement_effect_id = 47
 error_effect_id = 27
@@ -9,6 +11,7 @@ error_effect_id = 27
 app = FastAPI()
 
 times = []
+
 
 def add_or_update_sequence_mapping(location, sequence):
     jsonFile = open("store.json", "r")
@@ -105,15 +108,17 @@ def find_nearest_landmark(x, y):
         return (None, None) if nearest_landmark == None else nearest_landmark
     except:
         return (None, None)
-    
+
+
 def add_execution_time(time, start, end):
     file = open("update_execution_times.csv", "a+")
-    file.write(str(time) + "\n")
+    file.write(str(time) + "," + str(start) + "," + str(end) + "\n")
     file.close()
+
 
 def add_to_user_path(position):
     file = open("user_paths.csv", "a+")
-    file.write( str(position) + "\n")
+    file.write(str(position) + "\n")
     file.close()
 
 
@@ -184,9 +189,11 @@ def update_destination(sequence):
     else:
         return {"message": "Sequence received is not mapped to a location"}
 
+
 @app.get("/update")
 def update():
     return {"message": "Udpated"}
+
 
 @app.get("/ping")
 def ping():
@@ -196,3 +203,38 @@ def ping():
         add_execution_time(times[-1] - times[-2], 0, 0)
         # print("Latency", times[-1] - times[-2])
     return {"message": "hey"}
+
+# @app.get("/testupdate")
+# def test_update():
+#     start_time = time.time()
+#     destination = get_destination()
+#     destination = (22 - int(destination[1]*2), int(destination[0]*2))
+
+#     if (not destination):
+#         return
+
+#     a, b, c = localisation.get_user_location()
+
+#     start = free_points[random.randint(0, len(free_points))]
+#     end = free_points[random.randint(0, len(free_points))]
+#     h = random.randint(0, 360)
+
+#     next_direction, destination_reached = path_planner.calculate_next_direction(
+#         start, end, h, 0, False, False)
+
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+#     add_execution_time(elapsed_time, start, end)
+
+#     if (destination_reached):
+#         # print("Destination Reached")
+#         # play_ack_sequence()
+#         # update_destination_location(None)
+#         return
+#     else:
+#         if (next_direction):
+#             pass
+#             # print("Next Direction", next_direction)
+#             # haptic_output.play_direction(next_direction)
+#         else:
+#             pass
