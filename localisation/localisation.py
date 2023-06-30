@@ -5,6 +5,7 @@ import board
 import time
 import serial
 import os
+import adafruit_tca9548a
 from dwm1001_systemDefinitions import SYS_DEFS
 from dwm1001_apiCommands import DWM1001_API_COMMANDS
 
@@ -19,8 +20,8 @@ class Localisation:
                                                parity=SYS_DEFS.parity,
                                                stopbits=SYS_DEFS.stopbits,
                                                bytesize=SYS_DEFS.bytesize)
-
-        self.setup_bno055()
+        #TODO: Fix BNO055 callibration
+        # self.setup_bno055()
         self.initializeDWM1001API()
         self.connectDWM1001()
 
@@ -91,6 +92,7 @@ class Localisation:
         global serialReadLine
         if (self.serialPortDwm1001.isOpen()):
             self.reset_buffer()
+            self.serialPortDwm1001.write(DWM1001_API_COMMANDS.APG)
             location_data = []
             while len(location_data) < 1 or location_data[0] != 'POS':
                 serialReadLine = self.serialPortDwm1001.read_until()
@@ -121,9 +123,14 @@ def test():
 
 
 def test_dwm():
-    localisation = Localisation(board.I2C())
+    i2c = board.I2C()
+
+    i2cExpander = adafruit_tca9548a.TCA9548A(i2c)
+
+    localisation = Localisation(i2cExpander[6])
     while True:
         location = localisation.get_user_position()
         print(location)
+        time.sleep(4)
 
-# test()
+# test_dwm()
