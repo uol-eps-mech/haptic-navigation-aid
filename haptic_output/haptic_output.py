@@ -15,11 +15,11 @@ class HapticOutput:
 
     def __init__(self, i2cBus):
         # Create 4 DRV2605 objects and give them each an SDA+SCL on the i2cBus
-        self.north = adafruit_drv2605.DRV2605(i2cBus[1])
+        self.north = adafruit_drv2605.DRV2605(i2cBus[4])
         self.south = adafruit_drv2605.DRV2605(i2cBus[0])
-        self.east = adafruit_drv2605.DRV2605(i2cBus[5])
-        self.west = adafruit_drv2605.DRV2605(i2cBus[3])
-        self.motors = [self.north, self.south, self.east, self.west]
+        self.east = adafruit_drv2605.DRV2605(i2cBus[1])
+        self.west = adafruit_drv2605.DRV2605(i2cBus[5])
+        self.motors = [self.north, self.south, self.west, self.east]
         # self.left_obstacle = adafruit_drv2605.DRV2605(i2cBus[2])
         # self.right_obstacle = adafruit_drv2605.DRV2605(i2cBus[4])
 
@@ -30,7 +30,8 @@ class HapticOutput:
         self.east.sequence[0] = adafruit_drv2605.Pause(0)
         self.west.sequence[0] = adafruit_drv2605.Pause(0)
 
-    def play_direction(self, cardinal_direction, intensity=2, delay=0, count=1, effects=None):
+    def play_direction(self, cardinal_direction, intensity=2, delay=0.0, count=1, effects=None):
+        print("playing direction", cardinal_direction, intensity, delay, count)
         # Clear sequence on all motors
         self.clear_sequences()
 
@@ -40,21 +41,21 @@ class HapticOutput:
         else:
             effectid = 47 if intensity == 3 else 49 if intensity == 2 else 51
 
-        # Add effectid to sequence for motor if it is in cardinal direction
-        if "S" in cardinal_direction:
-            self.south.sequence[0] = adafruit_drv2605.Effect(effectid)
-
-        if "N" in cardinal_direction:
-            self.north.sequence[0] = adafruit_drv2605.Effect(effectid)
-
-        if "E" in cardinal_direction:
-            self.east.sequence[0] = adafruit_drv2605.Effect(effectid)
-
-        if "W" in cardinal_direction:
-            self.west.sequence[0] = adafruit_drv2605.Effect(effectid)
-
         # Play sequence on motors for 'count' no. of times
         for i in range(count):
+            # Add effectid to sequence for motor if it is in cardinal direction
+            if "S" in cardinal_direction:
+                self.south.sequence[0] = adafruit_drv2605.Effect(effectid)
+
+            if "N" in cardinal_direction:
+                self.north.sequence[0] = adafruit_drv2605.Effect(effectid)
+
+            if "E" in cardinal_direction:
+                self.east.sequence[0] = adafruit_drv2605.Effect(effectid)
+
+            if "W" in cardinal_direction:
+                self.west.sequence[0] = adafruit_drv2605.Effect(effectid)
+
             self.south.play()
             self.north.play()
             self.east.play()
@@ -82,25 +83,25 @@ class HapticOutput:
 
     def inidicate_obstacle(self, direction):
         pass
-    #     # Clear sequences for motors
-    #     self.left_obstacle.sequence[0] = adafruit_drv2605.Pause(0)
-    #     self.right_obstacle.sequence[0] = adafruit_drv2605.Pause(0)
+        # # Clear sequences for motors
+        # self.left_obstacle.sequence[0] = adafruit_drv2605.Pause(0)
+        # self.right_obstacle.sequence[0] = adafruit_drv2605.Pause(0)
 
-    #     # Get direction to plays
-    #     left, center, right = direction
+        # # Get direction to plays
+        # left, center, right = direction
 
-    #     # If center play both motors
-    #     if center:
-    #         left = right = True
-    #     if left:
-    #         self.left_obstacle.sequence[0] = adafruit_drv2605.Effect(
-    #             7)  # soft bump 60%
-    #     if right:
-    #         self.right_obstacle.sequence[0] = adafruit_drv2605.Effect(
-    #             7)  # soft bump 60%
+        # # If center play both motors
+        # if center:
+        #     left = right = True
+        # if left:
+        #     self.left_obstacle.sequence[0] = adafruit_drv2605.Effect(
+        #         7)  # soft bump 60%
+        # if right:
+        #     self.right_obstacle.sequence[0] = adafruit_drv2605.Effect(
+        #         7)  # soft bump 60%
 
-    #     self.left_obstacle.play()
-    #     self.right_obstacle.play()
+        # self.left_obstacle.play()
+        # self.right_obstacle.play()
 
     def play_sequence(self, sequence):
         # Clear sequence on all motors
