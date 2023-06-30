@@ -103,7 +103,7 @@ def load_map(map_name):
                [0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
                [0, 0, 0, 1, 0, 0, 0, 1, 0, 0],]
 
-    elif map_name == 'Lab_1':
+    elif map_name == 'lab':
         distance_between_nodes = 0.5
         map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
