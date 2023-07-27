@@ -28,6 +28,7 @@ void turn_off_leds()
     }
 }
 
+// Function to print the current sequence through Serial
 void print_sequence()
 {
     Serial.println("-----------------------");
@@ -40,6 +41,7 @@ void print_sequence()
     Serial.println("-----------------------");
 }
 
+// Function to play back the recorded sequence using LEDs
 void play_sequence()
 {
     print_sequence();
@@ -135,7 +137,9 @@ void record_sequence()
     }
 }
 
+// The main loop that runs continuously
 void loop()
 {
+    // Record the user's button presses and store them in the array
     record_sequence();
 }
