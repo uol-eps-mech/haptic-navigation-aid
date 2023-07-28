@@ -1,3 +1,4 @@
+# Import necessary libraries
 import machine
 import time
 import socket
@@ -34,8 +35,6 @@ PORT = 81
 SOCK = socket.socket()
 
 # Function to establish Wi-Fi connection
-
-
 def connect():
     pico_led.off()
     wlan = network.WLAN(network.STA_IF)
@@ -62,11 +61,8 @@ def connect():
         pico_led.on()
 
 # Write a value to a register on the DRV2605L
-
-
 def write_register(motor, register, value):
     motor.writeto(DRV_ADDR, bytes([register, value]))
-
 
 def format_sequence_int(sequence):
     string_sequence = sequence.split(",")
@@ -74,8 +70,6 @@ def format_sequence_int(sequence):
     return int_sequence
 
 # Function to initialize motors
-
-
 def initialize_motors():
     for motor in MOTORS:
         # Configure the DRV2605L
@@ -83,8 +77,6 @@ def initialize_motors():
         write_register(motor, 0x02, 0x00)  # Set library selection to RAM
 
 # Function to play a motor
-
-
 def play_motor(motor, effect=0x04):
     # Write the sequence to the DRV2605L
     write_register(motor, effect, 14)
@@ -94,8 +86,6 @@ def play_motor(motor, effect=0x04):
     write_register(motor, 0x0C, 0x01)  # Set GO bit to trigger playback
 
 # Function to play a direction
-
-
 def play_direction(direction):
     if "S" in direction:
         play_motor(MOTOR0)
@@ -107,8 +97,6 @@ def play_direction(direction):
         play_motor(MOTOR3)
 
 # Function to play all motors a certain number of times with a delay
-
-
 def play_all_motors(count, delay, effect=None):
     for _ in range(count):
         for motor in MOTORS:
@@ -118,15 +106,12 @@ def play_all_motors(count, delay, effect=None):
                 play_motor(motor, effect)
         time.sleep(delay)
 
-
 def play_sequence(sequence):
     for motor in format_sequence_int(sequence):
         play_motor(MOTORS[motor])
         time.sleep(1)
 
 # Function to set up the socket
-
-
 def setup_socket(port):
     try:
         addr = socket.getaddrinfo('0.0.0.0', 8000)[0][-1]
@@ -134,25 +119,19 @@ def setup_socket(port):
         SOCK.listen(1)
         print('Listening on', addr)
     except:
-        # setup_socket(port+1)
         play_all_motors(3, 0.3)
 
 # Function to get the heading from the sensor
-
-
 def get_heading():
     readings = SENSOR.euler()
     return json.dumps({"heading": readings[0]})
 
 # Setup function to establish Wi-Fi connection, socket, and initialize motors
-
-
 def setup():
     connect()
     setup_socket(PORT)
     initialize_motors()
     play_all_motors(2, 0.3, 0x07)
-
 
 # Call the setup function
 setup()
@@ -164,35 +143,36 @@ while True:
         if not cl:  # Check if cl is None
             cl, addr = SOCK.accept()
             print('Client connected from', addr)
-        r = cl.recv(1024)
-        r = str(r)
+        response = cl.recv(1024)
+        response = str(response)
 
-        url = r.split()[1]
+        url = response.split()[1]
         arguments = url.split("\\")
 
         cl.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
 
-        if r.find('/playdirection') > -1:
+        # Determine which request was received and take appropriate action
+        if response.find('/playdirection') > -1:
             print(arguments)
             direction = arguments[-1]
             play_direction(direction)
             print('Playing Direction', direction)
             pico_led.toggle()
 
-        elif r.find('/getheading') > -1:
+        elif response.find('/getheading') > -1:
             data = get_heading()
             print("heading found:", data)
             cl.send(data)
 
-        elif r.find('/playsequence') > -1:
+        elif response.find('/playsequence') > -1:
             sequence = arguments[-1]
             play_sequence(sequence)
             print("Playing Sequence")
 
-        elif r.find('/playacksequence') > -1:
+        elif response.find('/playacksequence') > -1:
             play_all_motors(2, 0.5)
 
-        elif r.find('/playerror') > -1:
+        elif response.find('/playerror') > -1:
             play_all_motors(3, 0.3)
 
         else:
